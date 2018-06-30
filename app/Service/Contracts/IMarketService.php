@@ -6,5 +6,5 @@ use App\Entity\Contracts\ITrade;
 
 interface IMarketService
 {
-    public function getTheMostExpensiveTrade() : ITrade;
+    public function getTheMostProfitableTrade() : ITrade;
 }
