@@ -2,8 +2,8 @@
 
 namespace App\Service\Contracts;
 
-use App\Entity\Contracts\ICurrency;
-use App\Entity\Contracts\IRate;
+use App\Entity\Contracts\Currency;
+use App\Entity\Contracts\Wallet;
 use App\Repository\Contracts\ICurrencyRepository;
 use app\Repository\Contracts\IRateRepository;
 use App\Request\Contracts\ICurrencyRequest;
@@ -28,9 +28,9 @@ interface ICurrencyService
      * Добавляет валюту в справочник
      *
      * @param ICurrencyRequest $currencyRequest
-     * @return ICurrency
+     * @return Currency
      */
-    public function addCurrency(ICurrencyRequest $currencyRequest) : ICurrency;
+    public function addCurrency(ICurrencyRequest $currencyRequest) : Currency;
 
     /**
      * Изменяет курс валюты.
@@ -42,7 +42,7 @@ interface ICurrencyService
      * Создавать отдельные view для e-mail не обязательно, можно отправлять обычнй текст.
      *
      * @param IRateRequest $rateRequest
-     * @return IRate
+     * @return Wallet
      */
-    public function changeRate(IRateRequest $rateRequest) : IRate;
+    public function changeRate(IRateRequest $rateRequest) : Wallet;
 }

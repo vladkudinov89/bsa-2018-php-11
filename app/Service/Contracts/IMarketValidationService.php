@@ -2,7 +2,7 @@
 
 namespace App\Service\Contracts;
 
-use App\Entity\Contracts\ITrade;
+use App\Entity\Contracts\Trade;
 use App\Exceptions\AccessDeniedException;
 use App\Exceptions\CurrencyDoesNotExistException;
 use App\Exceptions\WrongTradeAmountException;
@@ -26,18 +26,18 @@ interface IMarketValidationService
     /**
      * Удалять сделку может только владелец сделки
      *
-     * @param ITrade $trade
+     * @param Trade $trade
      *
      * @throws AccessDeniedException
      */
-    public function validateDeletingTrade(ITrade $trade) : void;
+    public function validateDeletingTrade(Trade $trade) : void;
 
     /**
      * Выполнять сделку может только владелец сделки
      *
-     * @param ITrade $trade
+     * @param Trade $trade
      *
      * @throws AccessDeniedException
      */
-    public function validateCompletingTrade(ITrade $trade) : void;
+    public function validateCompletingTrade(Trade $trade) : void;
 }

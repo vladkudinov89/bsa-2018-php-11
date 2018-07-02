@@ -2,12 +2,12 @@
 
 namespace App\Repository\Contracts;
 
-use App\Entity\Contracts\ICurrency;
+use App\Entity\Contracts\Currency;
 
 interface ICurrencyRepository
 {
-    public function add(ICurrency $model) : ICurrency;
-    public function update(ICurrency $model) : ICurrency;
-    public function getById(int $id) : ICurrency;
+    public function add(Currency $model) : Currency;
+    public function update(Currency $model) : Currency;
+    public function getById(int $id) : Currency;
     public function find() : array;
 }

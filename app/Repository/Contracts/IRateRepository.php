@@ -2,12 +2,12 @@
 
 namespace app\Repository\Contracts;
 
-use App\Entity\Contracts\IRate;
+use App\Entity\Contracts\Wallet;
 
 interface IRateRepository
 {
-    public function add(IRate $model) : IRate;
-    public function update(IRate $model) : IRate;
-    public function getById(int $id) : IRate;
+    public function add(Wallet $model) : Wallet;
+    public function update(Wallet $model) : Wallet;
+    public function getById(int $id) : Wallet;
     public function find() : array;
 }

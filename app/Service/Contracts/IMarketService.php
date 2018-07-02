@@ -2,11 +2,12 @@
 
 namespace App\Service\Contracts;
 
-use App\Entity\Contracts\ITrade;
+use App\Entity\Contracts\Trade;
 use App\Repository\Contracts\ICurrencyRepository;
 use app\Repository\Contracts\IRateRepository;
 use app\Repository\Contracts\ITradeRepository;
 use App\Request\Contracts\ITradeRequest;
+use App\Response\Contracts\ITradeResponse;
 
 /**
  * Interface IMarketService
@@ -27,18 +28,18 @@ interface IMarketService
      * Добавляет новую сделку на рынок со статусом "active".
      *
      * @param ITradeRequest $tradeRequest
-     * @return ITrade
+     * @return Trade
      */
-    public function addTrade(ITradeRequest $tradeRequest) : ITrade;
+    public function addTrade(ITradeRequest $tradeRequest) : Trade;
 
     /**
      * Изменяет статус сделки на "deleted".
      * В этот статус может переводить только владелец сделки.
      *
-     * @param ITrade $trade
-     * @return ITrade
+     * @param Trade $trade
+     * @return Trade
      */
-    public function deleteTrade(ITrade $trade) : ITrade;
+    public function deleteTrade(Trade $trade) : Trade;
 
     /**
      * Изменяет статус сделки на "completed".
@@ -49,23 +50,23 @@ interface IMarketService
      * Отправленные e-mail вы можете найти в /storage/logs/
      * Создавать отдельные view для e-mail не обязательно, можно отправлять обычнй текст.
      *
-     * @param ITrade $trade
-     * @return ITrade
+     * @param Trade $trade
+     * @return Trade
      */
-    public function completeTrade(ITrade $trade) : ITrade;
+    public function completeTrade(Trade $trade) : Trade;
 
     /**
      * Возвращает самую выгодную сделку.
      * Выгодной будем считать сделку с максимальным количеством денежных единиц по самому низкому курсу.
      *
-     * @return ITrade
+     * @return Trade
      */
-    public function getTheMostProfitableTrade() : ITrade;
+    public function getTheMostProfitableTrade() : Trade;
 
     /**
      * Возвращает массив активных сделок в формате описанном в App\Response\Contracts\ITradeResponse
      *
-     * @return <ITradeResponse>array
+     * @return ITradeResponse[]
      */
     public function getTrades() : array;
 }

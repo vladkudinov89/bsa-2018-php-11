@@ -2,12 +2,12 @@
 
 namespace app\Repository\Contracts;
 
-use App\Entity\Contracts\ITrade;
+use App\Entity\Contracts\Trade;
 
 interface ITradeRepository
 {
-    public function add(ITrade $model) : ITrade;
-    public function update(ITrade $model) : ITrade;
-    public function getById(int $id) : ITrade;
+    public function add(Trade $model) : Trade;
+    public function update(Trade $model) : Trade;
+    public function getById(int $id) : Trade;
     public function find() : array;
 }
