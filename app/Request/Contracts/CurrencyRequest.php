@@ -2,10 +2,11 @@
 
 namespace App\Request\Contracts;
 
-interface ITradeRequest
+interface CurrencyRequest
 {
-    public function getUserId() : int;
+    public function getWalletId() : int;
+
     public function getCurrencyId() : int;
+
     public function getAmount() : float;
-    public function getStatus() : string;
 }

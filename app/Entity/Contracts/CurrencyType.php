@@ -8,7 +8,7 @@ namespace App\Entity\Contracts;
  *
  * A type of currency
  */
-interface Currency
+interface CurrencyType
 {
     /**
      * An identifier of currency
