@@ -71,58 +71,71 @@
 
 ### Задание #2
 
-Используя инструменты Laravel для тестирования API протестировать работу с рынком криптовалют.<br>
+Для выполнения этого задания вам необходимо использовать существующие сервисы и средства работы с пользователями, предоставляемыю фреймворком.
 
-Для начала вам необходимо реализовать end points для работы со сделками:
-
-- Создание сделки<br>
-`POST /api/v1/trades` <br>
+Для начала вам нужно добавить следующие роуты:
+* Добавление лота
+`POST /api/v1/lots`<br>
 `Content-type: application/json`<br>
 `Status code: 201`<br>
+`Request data: `<br>
 ```
 { 
     "currency_id": <int>,
+    "date_time_open": <int>,
+    "date_time_close": <int>,
+    "price": <float>
+}
+```
+* Покупка валюты
+`POST /api/v1/trades`<br>
+`Content-type: application/json`<br>
+`Status code: 201`<br>
+`Request data: `<br>
+```
+{ 
+    "lot_id": <int>,
     "amount": <float>
 }
 ```
-- Изменение статуса сделки<br>
-`PUT /api/v1/trades/{id}`<br> 
+* Детальная информация о лоте
+`GET /api/v1/lots/{id}`<br>
 `Content-type: application/json`<br>
 `Status code: 200`<br>
+`Response:`<br>
 ```
-{ 
-    "status": <string>
+{
+    "id": <int>,
+    "user": <string>,
+    "currency": <string>,
+    "amount": <float>,
+    "date_time_open": <string>,
+    "date_time_close": <string>,
+    "price": <string>
 }
 ```
-- Вывод списка сделок<br>
-`GET /api/v1/trades`<br> 
-`Content-type: application/json`<br> 
+* Список всех лотов
+`GET /api/v1/lots`<br>
+`Content-type: application/json`<br>
 `Status code: 200`<br>
+`Response:`<br>
 ```
 [
-    { 
-        "user": <string>, // имя пользователя сделки
-        "currency": <string>, // имя валюты
-        "amount": <float>, // количество продаваемых единиц
-        "rate": <float>, // курс валюты
-        "total_price": <float>, // цена с учетом курса и количества
-        "status": <string> // статус сделки
+    {
+        "id": <int>,
+        "user": <string>,
+        "currency": <string>,
+        "amount": <float>,
+        "date_time_open": <string>,
+        "date_time_close": <string>,
+        "price": <string>
     },
     ...
 ]
 ```
 
-Цена сделки должна зависеть от курса выбранной валюты.
-
-Ограничения:
-- Создавать сделки могут только авторизованные пользователи
-- Один пользователь может иметь только одну активную сделку для каждой валюты
-- Удаленная и выполненные сделки не могут стать активными
-- Выполненная сделка не может быть удалена
-- Удалять сделку может только ее владелец
-- Владелец не может изменить статус сделки на выполненная
-
-Если выполняется действие не подходящее под ограничения должен возвращаться следующий ответ:<br>
+Добавлять лоты и покупать валюту могут только зарегистрированные пользователи.<br>
+В случае возникновения ошибки необходимо вернуть следующий ответ:<br>
 `Content-type: application/json`<br>
 `Status code: 400`<br>
 ```
@@ -130,6 +143,11 @@
     error: <string>
 }
 ```
+
+Если доступ запрещен, то код статуса ответа должен быть `403`.
+
+Используя средства тестирования API и базы данных, предоставляемые фреймворком Laravel, написать тесты для тестирования роутов API. 
+Для создания фейковых данных рекомендуется использовать [фабрики Laravel](https://laravel.com/docs/5.6/database-testing#generating-factories).
 
 Класс для тестирования API нужно разместить в `/tests/Feature/`.
 

@@ -4,6 +4,13 @@ namespace App\Response\Contracts;
 
 interface LotResponse
 {
+    /**
+     * An identifier of lot
+     *
+     * @return int
+     */
+    public function getId() : int;
+
     public function getUserName() : string;
 
     public function getCurrencyName() : string;
