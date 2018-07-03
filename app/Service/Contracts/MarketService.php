@@ -27,7 +27,6 @@ interface MarketService
     /**
      * Sell currency.
      *
-     * User cannot sell more currencies than he has in the wallet.
      * User cannot have more than one opened lot with the same currency.
      * Date of closing session cannot be less than opening date.
      * Price of lot cannot be negative.
@@ -45,6 +44,8 @@ interface MarketService
      * Add an amount of currency to buyer's wallet.
      * User cannot buy own currency.
      * User cannot buy more currency than lot contains.
+     * User cannot buy less than one amount of currency.
+     * User cannot buy currency from closed lot.
      *
      * After successful purchase seller is received an email.
      *
@@ -52,6 +53,14 @@ interface MarketService
      * @return Trade
      */
     public function buyLot(BuyLotRequest $lotRequest) : Trade;
+
+    /**
+     * Retrieves lot by an identifier and returns it in LotResponse format
+     *
+     * @param int $id
+     * @return LotResponse
+     */
+    public function getLot(int $id) : LotResponse;
 
     /**
      * Return list of lots.
