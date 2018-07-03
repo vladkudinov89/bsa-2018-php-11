@@ -10,20 +10,29 @@
 
 ### Задание
 
-Даны 3 модели, описанные интерфейсами: 
-- `App\Entity\Contracts\ICurrency` - валюта
-- `App\Entity\Contracts\IRate`  - курс валют
-- `App\Entity\Contracts\ITrade` - сделка
+Прежде всего вам необходимо реализовать следующие интерфейсы:
 
-В пространстве имен `App\Repository\Contracts\` описаны репозитории работы с данными моделями.
-Также, дано описание сервиса по работе с валютами `App\Service\Contracts\ICurrencyService` 
-и сервиса по работе с рынком валют `App\Service\Contracts\IMarketService`, и сервисы для их валидации. 
+* [Сущности](app/Entity/Contracts):
+    * [App\Entity\Contracts\Currency](app/Entity/Contracts/Currency.php)
+    * [App\Entity\Contracts\CurrencyType](app/Entity/Contracts/CurrencyType.php)
+    * [App\Entity\Contracts\Lot](app/Entity/Contracts/Lot.php)
+    * [App\Entity\Contracts\Trade](app/Entity/Contracts/Trade.php)
+    * [App\Entity\Contracts\Wallet](app/Entity/Contracts/Wallet.php)
+* [Репозитории](app/Repository/Contracts)
+    * [App\Repository\Contracts\CurrencyRepository](app/Repository/Contracts/CurrencyRepository.php)
+    * [App\Repository\Contracts\CurrencyTypeRepository](app/Repository/Contracts/CurrencyTypeRepository.php)
+    * [App\Repository\Contracts\LotRepository](app/Repository/Contracts/LotRepository.php)
+    * [App\Repository\Contracts\TradeRepository](app/Repository/Contracts/TradeRepository.php)
+    * [App\Repository\Contracts\WalletRepository](app/Repository/Contracts/WalletRepository.php)
+* [Сервисы](app/Service/Contracts)
+    * [App\Service\Contracts\CurrencyTypeService](app/Service/Contracts/CurrencyTypeService.php)
+    * [App\Service\Contracts\MarketService](app/Service/Contracts/MarketService.php)
+    * [App\Service\Contracts\WalletService](app/Service/Contracts/WalletService.php)
 
-Перед выполнением заданий вам необходимо создать миграции и модели на основании их описания, 
-и реализовать данные репозитории и сервисы. Сервисы и репозитории должны быть представлены сервис контейнерами 
-и должны быть зарегистрированы как интерфейс на реализацию.
-
-Работу с пользователями использовать, которую предоставляет фреймворк.
+А также вспомогательные реквесты и респонсы, необходимые для работы сервисов.
+Сервисы и репозитории должны быть зарегистрированы как сервис контейнеры в виде интерфейса на реализацию.
+Для сущностей вам необходимо создать модели и миграции для базы данных.
+Разрешается добавлять вспомогательные методы в сервисы и репозитории, если это необходимо.
 
 ### Задание #1
 

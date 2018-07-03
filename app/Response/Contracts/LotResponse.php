@@ -9,6 +9,13 @@ interface LotResponse
     public function getCurrencyName() : string;
 
     /**
+     * All amount of currency that user has in the wallet.
+     *
+     * @return float
+     */
+    public function getAmount() : float;
+
+    /**
      * Format: yyyy/mm/dd hh:mm:ss
      *
      * @return string
@@ -23,6 +30,8 @@ interface LotResponse
     public function getDateTimeClose() : string;
 
     /**
+     * Price per one amount of currency.
+     *
      * Format: 00,00
      *
      * @return string

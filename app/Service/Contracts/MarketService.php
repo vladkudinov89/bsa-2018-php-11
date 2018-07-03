@@ -2,7 +2,6 @@
 
 namespace App\Service\Contracts;
 
-use App\Entity\Contracts\Currency;
 use App\Entity\Contracts\Lot;
 use App\Entity\Contracts\Trade;
 use App\Repository\Contracts\LotRepository;
@@ -26,7 +25,12 @@ interface MarketService
     );
 
     /**
-     * Sell currency
+     * Sell currency.
+     *
+     * User cannot sell more currencies than he has in the wallet.
+     * User cannot have more than one opened lot with the same currency.
+     * Date of closing session cannot be less than opening date.
+     * Price of lot cannot be negative.
      *
      * @param AddLotRequest $lotRequest
      * @return Lot
@@ -34,7 +38,15 @@ interface MarketService
     public function addLot(AddLotRequest $lotRequest) : Lot;
 
     /**
-     * Buy currency
+     * Buy currency.
+     *
+     * Trade is created after buying currency.
+     * Take an amount of currency from seller's wallet.
+     * Add an amount of currency to buyer's wallet.
+     * User cannot buy own currency.
+     * User cannot buy more currency than lot contains.
+     *
+     * After successful purchase seller is received an email.
      *
      * @param BuyLotRequest $lotRequest
      * @return Trade
@@ -42,7 +54,7 @@ interface MarketService
     public function buyLot(BuyLotRequest $lotRequest) : Trade;
 
     /**
-     * Return list of lots
+     * Return list of lots.
      *
      * @return LotResponse[]
      */

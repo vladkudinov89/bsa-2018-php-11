@@ -46,7 +46,7 @@ interface Lot
     public function getSellerId() : int;
 
     /**
-     * Price of currency that a seller sets
+     * Price for one amount of currency that a seller sets
      *
      * @return float
      */
