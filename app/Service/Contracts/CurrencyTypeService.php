@@ -14,12 +14,6 @@ use App\Request\Contracts\CurrencyTypeRequest;
  */
 interface CurrencyTypeService
 {
-    /**
-     * CurrencyTypeRepository must be registered as a service container
-     *
-     * CurrencyTypeService constructor.
-     * @param CurrencyTypeRepository $currencyTypeRepository
-     */
     public function __construct(CurrencyTypeRepository $currencyTypeRepository);
 
     /**

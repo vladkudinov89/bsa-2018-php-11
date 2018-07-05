@@ -20,8 +20,6 @@ interface WalletService
     /**
      * Add wallet to user.
      *
-     * User cannot have more than one wallet.
-     *
      * @param CreateWalletRequest $walletRequest
      * @return Wallet
      */
@@ -30,17 +28,12 @@ interface WalletService
     /**
      * Add currency to a wallet.
      *
-     * User can have more than one record of an amount of currency in the wallet.
-     *
      * @return Currency
      */
     public function addCurrency(CurrencyRequest $currencyRequest) : Currency;
 
     /**
      * Take currency from a wallet.
-     *
-     * Add a new record with a negative value of the amount of currency.
-     * Cannot be taken more an amount of currency than the wallet contains.
      *
      * @param CurrencyRequest $currencyRequest
      * @return Currency

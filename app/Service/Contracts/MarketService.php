@@ -26,11 +26,6 @@ interface MarketService
 
     /**
      * Sell currency.
-     *
-     * User cannot have more than one opened lot with the same currency.
-     * Date of closing session cannot be less than opening date.
-     * Price of lot cannot be negative.
-     *
      * @param AddLotRequest $lotRequest
      * @return Lot
      */
@@ -38,16 +33,6 @@ interface MarketService
 
     /**
      * Buy currency.
-     *
-     * Trade is created after buying currency.
-     * Take an amount of currency from seller's wallet.
-     * Add an amount of currency to buyer's wallet.
-     * User cannot buy own currency.
-     * User cannot buy more currency than lot contains.
-     * User cannot buy less than one amount of currency.
-     * User cannot buy currency from closed lot.
-     *
-     * After successful purchase seller is received an email.
      *
      * @param BuyLotRequest $lotRequest
      * @return Trade
