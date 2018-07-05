@@ -8,6 +8,52 @@
 Научиться писать модульные и функциональные тесты при помощи фреймоврка PHPUnit.
 Научиться тестировать приложение в фреймворке Laravel.
 
+### Установка
+
+<b>Репозиторий форкать нельзя!</b>.
+
+```
+git clone <link to repositry>
+cd <repository_name>
+composer install
+cp .env.example .env
+cp .env.example .env.dusk.local
+php artisan key:generate
+git checkout -b develop
+```
+
+После клонирования репозитория создайте ветку `develop` и всю разработку ведите в этой ветви.
+Также рекомендуется использовать Homestead для поднятия приложения.
+
+Для работы dusk в среде Homestead дополнительно может потребоваться выполнение следующих действий:
+
+1. Зайдите на виртуальную машину через ssh из папки, где установлен Homestead
+```
+vagrant ssh
+```
+2. Выполните следующие команды
+```
+wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+
+sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+
+sudo apt-get update && sudo apt-get install -y google-chrome-stable
+
+sudo apt-get install -y xvfb
+```
+
+3. Затем выполните: 
+```
+Xvfb :0 -screen 0 1280x960x24 &
+```
+
+4. Теперь можно запускать тесты:
+```
+php artisan dusk
+```
+
+- см. https://github.com/laravel/dusk/issues/50#issuecomment-275155974
+
 ### Задание
 
 Прежде всего вам необходимо реализовать следующие интерфейсы:
@@ -163,49 +209,11 @@
 
 Используя Dusk необходимо протестировать отображение формы и вывод соответствующих сообщений.<br>
 
-### Установка
-
-<b>Репозиторий форкать нельзя!</b>.
-
-```
-git clone <link to repositry>
-cd <repository_name>
-composer install
-cp .env.example .env
-cp .env.example .env.dusk.local
-php artisan key:generate
-```
-
-Также рекомендуется использовать Homestead для поднятия приложения.
-Для работы dusk в среде Homestead дополнительно может потребоваться выполнение следующих действий:
-
-1. Зайдите на виртуальную машину через ssh из папки, где установлен Homestead
-    ```
-    vagrant ssh
-    ```
-2. Выполните следующие команды
-    ```
-    wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-    
-    sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
-    
-    sudo apt-get update && sudo apt-get install -y google-chrome-stable
-    
-    sudo apt-get install -y xvfb
-    ```
-
-3. Затем выполните: 
-    ```
-    Xvfb :0 -screen 0 1280x960x24 &
-    ```
-
-4. Теперь можно запускать тесты:
-    ```
-    php artisan dusk
-    ```
-
-- см. https://github.com/laravel/dusk/issues/50#issuecomment-275155974
-
 ### Прием решений
 
-Ваше решение необходимо разместить в отдельном репозитории на Github или Bitbucket и прислать ссылку на него.
+- Создайте репозиторий на github и запуште обе ветки `master` и `develop`.
+- Установите в вашем github аккаунте [Travis CI](https://github.com/marketplace/travis-ci/plan/MDIyOk1hcmtldHBsYWNlTGlzdGluZ1BsYW43MA==#pricing-and-setup0).
+- В репозитории перейдите в `Settings->Integrations&Services` и выберите в `Add service` Travis CI.
+- Перейдите на сайт [travis-ci.org](https://travis-ci.org/), авторизуйтесь с вашего github аккаунта и включите ваш репозиторий.
+- Пошлите пулл реквест из ветки `develop`, где должны быть все изменения, в ветку `master`, но не принимайте его.
+- Оставьте ссылку на github репозиторий в личном кабинете.
