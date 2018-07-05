@@ -5,8 +5,14 @@ dist: trusty
 php:
   - 7.2
 
+env:
+  - DB_DATABASE=homestead
+  - DB_USERNAME=homestead
+  - DB_PASSWORD=secret
+
 install:
-  - echo $DB_DATABASE
+  - cp .env.travis .env
+  - cp .env.travis .env.dusk.local
   - composer self-update
   - travis_retry composer install --no-interaction
   - mysql -e 'create database ${DB_DATABASE};'
@@ -14,8 +20,6 @@ install:
   - mysql -e "grant all privileges on ${DB_DATABASE}.* to '${DB_USERNAME}'@'localhost' with grant option;"
 
 before_script:
-  - cp .env.travis .env
-  - cp .env.travis .env.dusk.local
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
   - ./vendor/laravel/dusk/bin/chromedriver-linux &
