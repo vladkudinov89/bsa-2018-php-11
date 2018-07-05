@@ -165,8 +165,47 @@
 
 ### Установка
 
-Склонируйте себе репозиторий. <b>Репозиторий не должен быть форкнут</b>.
+<b>Репозиторий форкать нельзя!</b>.
 
-### Проверка
+```
+git clone <link to repositry>
+cd <repository_name>
+composer install
+cp .env.example .env
+cp .env.example .env.dusk.local
+php artisan key:generate
+```
 
+Также рекомендуется использовать Homestead для поднятия приложения.
+Для работы dusk в среде Homestead дополнительно может потребоваться выполнение следующих действий:
 
+1. Зайдите на виртуальную машину через ssh из папки, где установлен Homestead
+    ```
+    vagrant ssh
+    ```
+2. Выполните следующие команды
+    ```
+    wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+    
+    sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+    
+    sudo apt-get update && sudo apt-get install -y google-chrome-stable
+    
+    sudo apt-get install -y xvfb
+    ```
+
+3. Затем выполните: 
+    ```
+    Xvfb :0 -screen 0 1280x960x24 &
+    ```
+
+4. Теперь можно запускать тесты:
+    ```
+    php artisan dusk
+    ```
+
+- см. https://github.com/laravel/dusk/issues/50#issuecomment-275155974
+
+### Прием решений
+
+Ваше решение необходимо разместить в отдельном репозитории на Github или Bitbucket и прислать ссылку на него.
