@@ -15,9 +15,9 @@ install:
   - cp .env.travis .env.dusk.local
   - composer self-update
   - travis_retry composer install --no-interaction
-  - mysql -e 'create database ${DB_DATABASE};'
-  - mysql -e "create user '${DB_USERNAME}'@'localhost' identified by '${DB_PASSWORD}';"
-  - mysql -e "grant all privileges on ${DB_DATABASE}.* to '${DB_USERNAME}'@'localhost' with grant option;"
+  - mysql -e 'create database $DB_DATABASE;'
+  - mysql -e "create user '$DB_USERNAME'@'localhost' identified by '$DB_PASSWORD';"
+  - mysql -e "grant all privileges on $DB_DATABASE.* to '$DB_USERNAME'@'localhost' with grant option;"
 
 before_script:
   - export DISPLAY=:99.0
