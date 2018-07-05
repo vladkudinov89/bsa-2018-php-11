@@ -6,16 +6,16 @@ php:
   - 7.2
 
 env:
-  - DB_DATABASE=homestead
-  - DB_USERNAME=homestead
-  - DB_PASSWORD=secret
+  - DB_DATABASE=homestead DB_USERNAME=homestead DB_PASSWORD=secret
 
 install:
   - cp .env.travis .env
   - cp .env.travis .env.dusk.local
   - composer self-update
   - travis_retry composer install --no-interaction
-  - mysql -e 'create database $DB_DATABASE;'
+  - echo "create database $DB_DATABASE;"
+  - echo "create database ${DB_DATABASE};"
+  - mysql -e "create database $DB_DATABASE;"
   - mysql -e "create user '$DB_USERNAME'@'localhost' identified by '$DB_PASSWORD';"
   - mysql -e "grant all privileges on $DB_DATABASE.* to '$DB_USERNAME'@'localhost' with grant option;"
 
