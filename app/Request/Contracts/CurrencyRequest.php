@@ -6,7 +6,7 @@ interface CurrencyRequest
 {
     public function getWalletId() : int;
 
-    public function getCurrencyId() : int;
+    public function getCurrencyTypeId() : int;
 
     public function getAmount() : float;
 }
