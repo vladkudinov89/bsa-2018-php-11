@@ -4,7 +4,7 @@ namespace App\Request\Contracts;
 
 interface AddLotRequest
 {
-    public function getCurrencyId() : int;
+    public function getCurrencyTypeId() : int;
 
     /**
      * An identifier of user

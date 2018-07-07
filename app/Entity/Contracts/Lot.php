@@ -22,7 +22,7 @@ interface Lot
      *
      * @return int
      */
-    public function getCurrencyId() : int;
+    public function getCurrencyTypeId() : int;
 
     /**
      * Timestamp of a start selling currency
