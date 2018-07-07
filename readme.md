@@ -15,9 +15,9 @@
 ```
 git clone <link to repositry>
 cd <repository_name>
-composer install
 cp .env.example .env
 cp .env.example .env.dusk.local
+composer install
 php artisan key:generate
 git checkout -b develop
 ```
