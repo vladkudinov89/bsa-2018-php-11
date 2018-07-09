@@ -10,8 +10,5 @@ interface LotRepository
 
     public function getById(int $id) : Lot;
 
-    /**
-     * @return Lot[]
-     */
     public function findAll();
 }

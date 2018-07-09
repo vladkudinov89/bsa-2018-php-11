@@ -60,25 +60,25 @@ php artisan dusk
 
 * [Сущности](app/Entity/Contracts):
     * [App\Entity\Contracts\Currency](app/Entity/Contracts/Currency.php)
-    * [App\Entity\Contracts\CurrencyType](app/Entity/Contracts/CurrencyType.php)
+    * [App\Entity\Contracts\Money](app/Entity/Contracts/Money.php)
     * [App\Entity\Contracts\Lot](app/Entity/Contracts/Lot.php)
     * [App\Entity\Contracts\Trade](app/Entity/Contracts/Trade.php)
     * [App\Entity\Contracts\Wallet](app/Entity/Contracts/Wallet.php)
 * [Репозитории](app/Repository/Contracts)
     * [App\Repository\Contracts\CurrencyRepository](app/Repository/Contracts/CurrencyRepository.php)
-    * [App\Repository\Contracts\CurrencyTypeRepository](app/Repository/Contracts/CurrencyTypeRepository.php)
+    * [App\Repository\Contracts\MoneyRepository](app/Repository/Contracts/MoneyRepository.php)
     * [App\Repository\Contracts\LotRepository](app/Repository/Contracts/LotRepository.php)
     * [App\Repository\Contracts\TradeRepository](app/Repository/Contracts/TradeRepository.php)
     * [App\Repository\Contracts\WalletRepository](app/Repository/Contracts/WalletRepository.php)
 * [Сервисы](app/Service/Contracts)
-    * [App\Service\Contracts\CurrencyTypeService](app/Service/Contracts/CurrencyTypeService.php)
+    * [App\Service\Contracts\CurrencyTypeService](app/Service/Contracts/CurrencyService.php)
     * [App\Service\Contracts\MarketService](app/Service/Contracts/MarketService.php)
     * [App\Service\Contracts\WalletService](app/Service/Contracts/WalletService.php)
 
 А также вспомогательные [реквесты](app/Request/Contracts) и [респонс](app/Response/Contracts), необходимые для работы сервисов.<br>
 Сервисы и репозитории должны быть зарегистрированы как сервис контейнеры в виде интерфейса на реализацию.<br>
 Для сущностей вам необходимо создать модели и миграции для базы данных.<br>
-Разрешается добавлять вспомогательные методы в сервисы и репозитории, если это необходимо.<br>
+Разрешается добавлять вспомогательные методы в контракты, если это необходимо.<br>
 Для работы с почтой используйте [драйвер для разработки](https://laravel.com/docs/5.6/mail#mail-and-local-development).
 
 ### Задание #1
@@ -96,23 +96,23 @@ php artisan dusk
         * Пользователь не может покупать собственную валютту
         * Пользователь не может покупать больше валюты чем содержит лот
         * Пользователь не может купить меньше одной единицы валюты
-        * Пользователь не может купить валюты из закрытого лота 
+        * Пользователь не может купить валюту из закрытого лота 
         * После успешного выполнения должна быть добавлена сделка (`Trade`)
         * После успешного выполнения на почту продавца должно отправиться электронное письмо
     * `getLot` - возвращает информацию о лоте по идентификатору. Метод должен соответствовать следующим ограничениям:
-        * Если запрашиваемого лота не существует должно выбрасываться исключение.
+        * Если запрашиваемого лота не существует должно выбрасываться исключение `LogicException`.
         * Количество валюты должно соответствовать количеству валюты в кошельке пользователя.
         * Даты закрытия и открытия должны быть представлены строкой в формате: `yyyy/mm/dd hh:mm:ss`
         * Цена за единицу валюты должна быть в формате: `00,00`
     * `getLotList` - возвращает массив объектов типа `LotResponse`.
 * [WalletService](app/Service/Contracts/WalletService.php)
     * `addWallet` - добавляет кошелек пользователю. Пользователь не может иметь более одного кошелька.
-    * `addCurrency` - добавляет единицы заданной валюты в кошелек пользователя. Пользователь может иметь более одной записи с одной валютой в кошельке.
-    * `takeCurrency` - сокращает количество валюты в кошелек пользователя. Значение количества валюты не должно превышать количество валюты в кошельке пользователя.
-* [CurrencyTypeService](app/Service/Contracts/CurrencyTypeService.php)
+    * `addCurrency` - добавляет единицы заданной валюты в кошелек пользователя. Пользователь не может иметь более одной записи с одной валютой в кошельке.
+    * `takeCurrency` - сокращает количество валюты в кошельке пользователя. Значение количества валюты не должно превышать количество валюты в кошельке пользователя.
+* [CurrencyService](app/Service/Contracts/CurrencyService.php)
     * `addCurrencyType` - добавляет валюту в справочник. В справочнике не должно быть валюты с одинаковым именем.
 
-В этом задании вы должны использовать создание моков, стабов, а также использовать ассершены, предоставляемые PHPUnit и Laravel.
+В этом задании вы должны использовать создание моков, стабов, а также использовать ассершены, предоставляемые [PHPUnit](https://phpunit.readthedocs.io/en/7.1/assertions.html) и [Laravel](https://laravel.com/docs/5.6/testing).
 Модульные тесты размещаются в директории `tests\Unit`.
 
 ### Задание #2

@@ -10,11 +10,6 @@ namespace App\Entity\Contracts;
  */
 interface Lot
 {
-    /**
-     * An identifier of a lot
-     *
-     * @return int
-     */
     public function getId() : int;
 
     /**
@@ -22,7 +17,7 @@ interface Lot
      *
      * @return int
      */
-    public function getCurrencyTypeId() : int;
+    public function getCurrencyId() : int;
 
     /**
      * Timestamp of a start selling currency

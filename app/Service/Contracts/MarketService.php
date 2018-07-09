@@ -4,28 +4,15 @@ namespace App\Service\Contracts;
 
 use App\Entity\Contracts\Lot;
 use App\Entity\Contracts\Trade;
-use App\Repository\Contracts\LotRepository;
-use App\Repository\Contracts\TradeRepository;
 use App\Request\Contracts\AddLotRequest;
 use App\Request\Contracts\BuyLotRequest;
 use App\Response\Contracts\LotResponse;
 
-/**
- * Interface MarketService
- * @package App\Service\Contracts
- *
- * A service of work with selling currency
- */
 interface MarketService
 {
-    public function __construct(
-        TradeRepository $tradeRepository,
-        LotRepository $lotRepository,
-        WalletService $walletService
-    );
-
     /**
      * Sell currency.
+     *
      * @param AddLotRequest $lotRequest
      * @return Lot
      */

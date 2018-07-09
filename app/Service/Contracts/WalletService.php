@@ -2,21 +2,13 @@
 
 namespace App\Service\Contracts;
 
-use App\Entity\Contracts\Currency;
+use App\Entity\Contracts\Money;
 use App\Entity\Contracts\Wallet;
-use App\Repository\Contracts\CurrencyRepository;
-use App\Repository\Contracts\WalletRepository;
 use App\Request\Contracts\CreateWalletRequest;
-use App\Request\Contracts\CurrencyRequest;
+use App\Request\Contracts\MoneyRequest;
 
-/**
- * Interface WalletService
- * @package App\Service\Contracts
- */
 interface WalletService
 {
-    public function __construct(WalletRepository $walletRepository, CurrencyRepository $currencyRepository);
-
     /**
      * Add wallet to user.
      *
@@ -26,17 +18,17 @@ interface WalletService
     public function addWallet(CreateWalletRequest $walletRequest) : Wallet;
 
     /**
-     * Add currency to a wallet.
+     * Add money to a wallet.
      *
-     * @return Currency
+     * @return Money
      */
-    public function addCurrency(CurrencyRequest $currencyRequest) : Currency;
+    public function addMoney(MoneyRequest $moneyRequest) : Money;
 
     /**
-     * Take currency from a wallet.
+     * Take money from a wallet.
      *
-     * @param CurrencyRequest $currencyRequest
-     * @return Currency
+     * @param MoneyRequest $currencyRequest
+     * @return Money
      */
-    public function takeCurrency(CurrencyRequest $currencyRequest) : Currency;
+    public function takeMoney(MoneyRequest $moneyRequest) : Money;
 }
