@@ -2,8 +2,8 @@
 
 namespace App\Service\Contracts;
 
-use App\Entity\Contracts\Money;
-use App\Entity\Contracts\Wallet;
+use App\Entity\Money;
+use App\Entity\Wallet;
 use App\Request\Contracts\CreateWalletRequest;
 use App\Request\Contracts\MoneyRequest;
 
