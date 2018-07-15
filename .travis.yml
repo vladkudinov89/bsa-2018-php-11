@@ -10,7 +10,6 @@ env:
 
 install:
   - cp .env.travis .env
-  - cp .env.travis .env.dusk.local
   - composer self-update
   - travis_retry composer install --no-interaction
   - mysql -e "create user '$DB_USERNAME'@'localhost' identified by '$DB_PASSWORD';"
@@ -23,7 +22,7 @@ before_script:
   - ./vendor/laravel/dusk/bin/chromedriver-linux &
   - php artisan key:generate
   - php artisan migrate
-  - php artisan serve &
+  - php artisan serve --host=127.0.0.1 --port=8000 &
 
 script:
   - ./vendor/bin/phpunit
