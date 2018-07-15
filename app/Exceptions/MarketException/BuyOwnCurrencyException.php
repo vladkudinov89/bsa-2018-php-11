@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exceptions\MarketService;
+namespace App\Exceptions\MarketException;
 
 class BuyOwnCurrencyException extends \LogicException
 {
