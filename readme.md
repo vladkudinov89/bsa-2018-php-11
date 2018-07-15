@@ -16,9 +16,9 @@
 git clone <link to repositry>
 cd <repository_name>
 cp .env.example .env
-cp .env.example .env.dusk.local
 composer install
 php artisan key:generate
+cp .env.example .env.dusk.local
 php artisan migrate:fresh
 git checkout -b develop
 ```
