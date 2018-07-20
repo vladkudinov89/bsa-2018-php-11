@@ -1,19 +1,15 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: vlad
- * Date: 20.07.18
- * Time: 12:41
- */
 
 namespace App\Request;
 
 
-class AddCurrencyRequest implements Contracts\AddCurrencyRequest
+use Illuminate\Foundation\Http\FormRequest;
+
+class AddCurrencyRequest extends FormRequest implements Contracts\AddCurrencyRequest
 {
     public function getName(): string
     {
-        // TODO: Implement getName() method.
+        return request()->input('name');
     }
 
 }

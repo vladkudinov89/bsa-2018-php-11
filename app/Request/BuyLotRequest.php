@@ -1,29 +1,25 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: vlad
- * Date: 20.07.18
- * Time: 12:42
- */
 
 namespace App\Request;
 
 
-class BuyLotRequest implements Contracts\BuyLotRequest
+use Illuminate\Foundation\Http\FormRequest;
+
+class BuyLotRequest extends FormRequest implements Contracts\BuyLotRequest
 {
     public function getUserId(): int
     {
-        // TODO: Implement getUserId() method.
+        return request()->input('user_id');
     }
 
     public function getLotId(): int
     {
-        // TODO: Implement getLotId() method.
+        return request()->input('id');
     }
 
     public function getAmount(): float
     {
-        // TODO: Implement getAmount() method.
+        return request()->input('amount');
     }
 
 }
