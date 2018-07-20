@@ -63,7 +63,6 @@ class MarketService implements Contracts\MarketService
         $buyerWallet = $this->walletRepository->findByUser($buyer->id);
         $sellerWallet = $this->walletRepository->findByUser($seller->id);
         $buyerMoney = $this->moneyRepository->findByWalletAndCurrency($buyerWallet->id, $lot->currency_id);
-        $sellerMoney = $this->moneyRepository->findByWalletAndCurrency($sellerWallet->id, $lot->currency_id);
 
         if (
             $seller->id !== $buyer->id
