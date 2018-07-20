@@ -13,6 +13,17 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class MoneyRequest extends FormRequest implements Contracts\MoneyRequest
 {
+    private $walletId;
+    private $currencyId;
+    private $amount;
+
+    public function __construct(int $walletId, int $currencyId, float $amount)
+    {
+        $this->walletId = $walletId;
+        $this->currencyId = $currencyId;
+        $this->amount = $amount;
+    }
+
     public function getWalletId(): int
     {
         return request()->input('wallet_id');
