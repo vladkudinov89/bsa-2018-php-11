@@ -8,17 +8,18 @@ class CurrencyRepository implements Contracts\CurrencyRepository
 {
     public function add(Currency $currency) : Currency
     {
-
+        $currency->push();
+        return $currency;
     }
 
     public function getById(int $id) : ?Currency
     {
-        return Currency::find($id) ? Currency::find($id) : null;
+        return Currency::find($id);
     }
 
     public function getCurrencyByName(string $name) : ?Currency
     {
-
+        return Currency::where('name' , $name)->first();
     }
 
     /**

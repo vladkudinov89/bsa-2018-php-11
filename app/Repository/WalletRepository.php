@@ -15,12 +15,13 @@ class WalletRepository implements Contracts\WalletRepository
 {
     public function add(Wallet $wallet): Wallet
     {
-        // TODO: Implement add() method.
+       $wallet->push();
+       return $wallet;
     }
 
     public function findByUser(int $userId): ?Wallet
     {
-        // TODO: Implement findByUser() method.
+        return Wallet::where('user_id' , $userId)->first();
     }
 
 }

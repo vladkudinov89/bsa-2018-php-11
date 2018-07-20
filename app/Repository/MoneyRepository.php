@@ -15,12 +15,16 @@ class MoneyRepository implements Contracts\MoneyRepository
 {
     public function save(Money $money): Money
     {
-        // TODO: Implement save() method.
+        $money->push();
+        return $money;
     }
 
     public function findByWalletAndCurrency(int $walletId, int $currencyId): ?Money
     {
-        // TODO: Implement findByWalletAndCurrency() method.
+        return Money::where([
+            'wallet_id' => $walletId,
+            'currency_id' => $currencyId,
+        ])->first();
     }
 
 }

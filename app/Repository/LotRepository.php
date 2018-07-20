@@ -8,22 +8,23 @@ class LotRepository implements Contracts\LotRepository
 {
     public function add(Lot $lot): Lot
     {
-        // TODO: Implement add() method.
+        $lot->push();
+        return $lot;
     }
 
     public function getById(int $id): ?Lot
     {
-        // TODO: Implement getById() method.
+        return Lot::find($id);
     }
 
     public function findAll()
     {
-        // TODO: Implement findAll() method.
+        return Lot::all();
     }
 
     public function findActiveLot(int $userId): ?Lot
     {
-        // TODO: Implement findActiveLot() method.
+        return Lot::where('seller_id',$userId)->active()->first();
     }
 
 }
