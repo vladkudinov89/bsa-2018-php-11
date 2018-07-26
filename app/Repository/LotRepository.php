@@ -3,12 +3,13 @@
 namespace App\Repository;
 
 use App\Entity\Lot;
+use Carbon\Carbon;
 
 class LotRepository implements Contracts\LotRepository
 {
     public function add(Lot $lot): Lot
     {
-        $lot->push();
+        $lot->save();
         return $lot;
     }
 
@@ -24,7 +25,9 @@ class LotRepository implements Contracts\LotRepository
 
     public function findActiveLot(int $userId): ?Lot
     {
-        return Lot::where('seller_id',$userId)->active()->first();
+        return Lot::where('seller_id', $userId)
+                ->whereDate('date_time_open', '>=', Carbon::now())
+                ->whereDate('date_time_close', '<', Carbon::now())->first();
     }
 
 }

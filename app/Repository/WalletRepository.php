@@ -15,7 +15,7 @@ class WalletRepository implements Contracts\WalletRepository
 {
     public function add(Wallet $wallet): Wallet
     {
-       $wallet->push();
+       $wallet->save();
        return $wallet;
     }
 

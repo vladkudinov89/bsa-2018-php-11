@@ -8,7 +8,7 @@ class CurrencyRepository implements Contracts\CurrencyRepository
 {
     public function add(Currency $currency) : Currency
     {
-        $currency->push();
+        $currency->save();
         return $currency;
     }
 

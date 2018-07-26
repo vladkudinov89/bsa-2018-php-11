@@ -15,7 +15,7 @@ class TradeRepository implements Contracts\TradeRepository
 {
     public function add(Trade $trade): Trade
     {
-        $trade->push();
+        $trade->save();
         return $trade;
     }
 

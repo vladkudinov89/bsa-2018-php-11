@@ -15,7 +15,7 @@ class MoneyRepository implements Contracts\MoneyRepository
 {
     public function save(Money $money): Money
     {
-        $money->push();
+        $money->save();
         return $money;
     }
 
