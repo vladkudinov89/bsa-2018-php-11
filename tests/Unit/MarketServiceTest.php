@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 
+use App\Entity\Currency;
 use App\Entity\Lot;
 use App\Exceptions\MarketException\ActiveLotExistsException;
 use App\Exceptions\MarketException\IncorrectPriceException;
@@ -79,22 +80,11 @@ class MarketServiceTest extends TestCase
         );
     }
 
-    public function testInstance()
-    {
-        $this->assertInstanceOf(
-            MarketService::class,
-            $this->marketService
-        );
-    }
-
 
     public function testAddLot()
     {
-        $user = self::user();
-        $currencyName = self::currencyName();
-
-        $addCurrencyRequest = new AddCurrencyRequest($currencyName);
-        $currency = $this->currencyService->addCurrency($addCurrencyRequest);
+        $user = factory(User::class)->make(['id' => 1]);
+        $currency = factory(Currency::class)->make(['id' => 1]);
 
         $lotRequest = new AddLotRequest(
             $currency->id,
@@ -104,33 +94,12 @@ class MarketServiceTest extends TestCase
             5
         );
         $this->lotRepository->method('findActiveAllLots')->willReturn(new Collection());
-        $lots = $this->lotRepository->findActiveAllLots($lotRequest->getSellerId());
 
         $currencyId = $lotRequest->getCurrencyId();
         $sellerId = $lotRequest->getSellerId();
         $dateTimeOpen = $lotRequest->getDateTimeOpen();
         $dateTimeClose = $lotRequest->getDateTimeClose();
         $price = $lotRequest->getPrice();
-
-        foreach ($lots as $lot) {
-            try {
-                $this->assertEquals($lot->currency_id, $currencyId);
-            } catch (ActiveLotExistsException $e) {
-                throw new ActiveLotExistsException("User already has active currency lot");
-            }
-        }
-
-        try {
-            $this->assertGreaterThanOrEqual($lotRequest->getDateTimeOpen(), $lotRequest->getDateTimeClose());
-        } catch (ActiveLotExistsException $e) {
-            throw new IncorrectTimeCloseException("Close datetime can't be before open");
-        }
-
-        try {
-            $this->assertGreaterThan(0, $price);
-        } catch (ActiveLotExistsException $e) {
-            throw new IncorrectPriceException("Price must be positive");
-        }
 
         $lot = $this->marketService->addLot($lotRequest);
 
@@ -146,20 +115,5 @@ class MarketServiceTest extends TestCase
     {
         $model->id = random_int(1, 100);
         return $model;
-    }
-
-    private static function user(): User
-    {
-        return new User([
-            'id' => 1,
-            'name' => 'User',
-            'email' => 'user@example.com',
-            'password' => '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', // secret,
-        ]);
-    }
-
-    private static function currencyName(): string
-    {
-        return "Bitcoin";
     }
 }
