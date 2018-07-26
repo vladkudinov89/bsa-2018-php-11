@@ -23,8 +23,13 @@ class WalletService implements Contracts\WalletService
 
     public function addWallet(CreateWalletRequest $walletRequest): Wallet
     {
-        $wallet = new Wallet();
-        $wallet->user_id = $walletRequest->getUserId();
+        $wallet = $this->walletRepository->findByUser($walletRequest->getUserId());
+        if(!isset($wallet)){
+
+            $wallet = new Wallet();
+            $wallet->user_id = $walletRequest->getUserId();
+        }
+
         return $this->walletRepository->add($wallet);
 
     }
@@ -37,7 +42,7 @@ class WalletService implements Contracts\WalletService
 
         $money = $this->moneyRepository->findByWalletAndCurrency($walletId , $currencyId);
 
-        if($money === null){
+        if(empty($money)){
             $money = new Money;
             $money->wallet_id = $walletId;
             $money->currency_id = $currencyId;
@@ -57,7 +62,9 @@ class WalletService implements Contracts\WalletService
 
         $money = $this->moneyRepository->findByWalletAndCurrency($walletId , $currencyId);
 
-        $money->amount -= $amount;
+        if($money->amount >= $amount){
+            $money->amount -= $amount;
+        }
 
         return $this->moneyRepository->save($money);
     }

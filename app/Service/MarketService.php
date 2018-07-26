@@ -2,10 +2,19 @@
 
 namespace App\Service;
 
-
 use App\Entity\Lot;
 use App\Entity\Trade;
 use App\Mail\TradeCreated;
+use App\Exceptions\MarketException\ActiveLotExistsException;
+use App\Exceptions\MarketException\IncorrectTimeCloseException;
+use App\Exceptions\MarketException\IncorrectPriceException;
+use App\Exceptions\MarketException\BuyInactiveLotException;
+use App\Exceptions\MarketException\BuyNegativeAmountException;
+use App\Exceptions\MarketException\BuyOwnCurrencyException;
+use App\Exceptions\MarketException\IncorrectLotAmountException;
+
+
+use App\Exceptions\MarketException\LotDoesNotExistException;
 use App\Repository\Contracts\CurrencyRepository;
 use App\Repository\Contracts\LotRepository;
 use App\Repository\Contracts\MoneyRepository;
@@ -45,6 +54,23 @@ class MarketService implements Contracts\MarketService
 
     public function addLot(AddLotRequest $lotRequest): Lot
     {
+        $lots = $this->lotRepository->findActiveAllLots($lotRequest->getSellerId());
+
+        foreach ($lots as $lot)
+        {
+            if($lot->currency_id == $lotRequest->getCurrencyId()){
+                throw new ActiveLotExistsException("User already has active currency lot");
+            }
+        }
+
+        if ($lotRequest->getDateTimeClose() <= $lotRequest->getDateTimeOpen()) {
+            throw new IncorrectTimeCloseException("Close datetime can't be before open");
+        }
+
+        if($lotRequest->getPrice() < 0){
+            throw new IncorrectPriceException("Price must be positive");
+        }
+
         $lot = new Lot;
         $lot->currency_id = $lotRequest->getCurrencyId();
         $lot->seller_id = $lotRequest->getSellerId();
@@ -63,10 +89,9 @@ class MarketService implements Contracts\MarketService
         $buyerWallet = $this->walletRepository->findByUser($buyer->id);
         $sellerWallet = $this->walletRepository->findByUser($seller->id);
         $buyerMoney = $this->moneyRepository->findByWalletAndCurrency($buyerWallet->id, $lot->currency_id);
+        $sellerMoney = $this->moneyRepository->findByWalletAndCurrency($sellerWallet->id, $lot->currency_id);
 
         if (
-            $seller->id !== $buyer->id
-            &&
             $lotRequest->getAmount() <= $buyerMoney->amount
             &&
             $lotRequest->getAmount() >= 1

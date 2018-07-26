@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Lot;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 
 class LotRepository implements Contracts\LotRepository
 {
@@ -21,6 +22,13 @@ class LotRepository implements Contracts\LotRepository
     public function findAll()
     {
         return Lot::all();
+    }
+
+    public function findActiveAllLots(int $userId): Collection
+    {
+        return Lot::where('seller_id', $userId)
+            ->whereDate('date_time_open', '>=', Carbon::now())
+            ->whereDate('date_time_close', '<', Carbon::now())->get();
     }
 
     public function findActiveLot(int $userId): ?Lot
