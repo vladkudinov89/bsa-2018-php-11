@@ -91,7 +91,6 @@ class MarketService implements Contracts\MarketService
         $seller = $this->userRepository->getById($lot->seller_id);
         $buyerWallet = $this->walletRepository->findByUser($buyer->id);
         $sellerWallet = $this->walletRepository->findByUser($seller->id);
-        $buyerMoney = $this->moneyRepository->findByWalletAndCurrency($buyerWallet->id, $lot->currency_id);
         $sellerMoney = $this->moneyRepository->findByWalletAndCurrency($sellerWallet->id, $lot->currency_id);
 
         if($activeLot === null)
@@ -126,24 +125,32 @@ class MarketService implements Contracts\MarketService
             throw new IncorrectLotAmountException("Not enough money in lot for this operation");
         }
 
+        $this->walletService->takeMoney(
+            new MoneyRequest(
+                $buyerWallet->id,
+                $lot->currency_id,
+                $amount
+            )
+        );
 
-//        if (
-//            $lotRequest->getAmount() <= $buyerMoney->amount
-//            &&
-//            $lotRequest->getAmount() >= 1
-//        ) {
-//            $this->walletService->takeMoney(new MoneyRequest($buyerWallet->id, $lot->currency_id,
-//                $lotRequest->getAmount()));
-//            $this->walletService->addMoney(new MoneyRequest($sellerWallet->id, $lot->currnncy_id,
-//                $lotRequest->getAmount()));
-//            $trade = new Trade([
-//                'lot_id' => $lotRequest->getLotId(),
-//                'user_id' => $buyer->id,
-//                'amount' => $lotRequest->getAmount(),
-//            ]);
-//            $this->tradeRepository->add($trade);
-//            Mail::send(new TradeCreated($trade));
-//        }
+        $this->walletService->addMoney(
+          new MoneyRequest(
+              $sellerWallet->id,
+              $lot->currency_id,
+              $amount
+          )
+        );
+
+        $trade = new Trade;
+        $trade->lot_id = $lotRequest->getLotId();
+        $trade->user_id = $lotRequest->getUserId();
+        $trade->amount = $lotRequest->getAmount();
+
+
+        $mailMessage = new TradeCreated($trade, $seller, $buyer, $this->currencyRepository->getById($activeLot->id));
+        Mail::send($mailMessage);
+
+        return $this->tradeRepository->add($trade);
 
     }
 
