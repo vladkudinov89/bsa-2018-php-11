@@ -157,23 +157,33 @@ class MarketService implements Contracts\MarketService
     public function getLot(int $id): LotResponse
     {
         $lot = $this->lotRepository->getById($id);
-        $user = $this->userRepository->getById($lot->user_id);
+        if (empty($lot)) {
+            throw new LotDoesNotExistException("Lot with id:$lot doesn't exist");
+        }
         $currency = $this->currencyRepository->getById($lot->currency_id);
+        $user = $this->userRepository->getById($lot->seller_id);
         $wallet = $this->walletRepository->findByUser($user->id);
         $money = $this->moneyRepository->findByWalletAndCurrency($wallet->id, $currency->id);
-        $response = new \App\Response\LotResponse($lot->id, $user->name, $currency->name,
-            $money->amount, $lot->getDateTimeOpen(), $lot->getDateTimeClose(), $lot->price);
+        $response = new \App\Response\LotResponse(
+            $lot->id,
+            $user->name,
+            $currency->name,
+            $money->amount,
+            $lot->getDateTimeOpen(),
+            $lot->getDateTimeClose(),
+            $lot->price
+        );
         return $response;
     }
 
     public function getLotList(): array
     {
-        $listLot = [];
+        $arrayLot = [];
         $lots = $this->lotRepository->findAll();
         foreach ($lots as $lot) {
-            $listLot[] = $this->getLot($lot->id);
+            $arrayLot[] = $this->getLot($lot->id);
         }
-        return $listLot;
+        return $arrayLot;
     }
 
 }
