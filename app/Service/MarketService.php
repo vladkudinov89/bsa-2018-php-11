@@ -5,16 +5,16 @@ namespace App\Service;
 use App\Entity\Lot;
 use App\Entity\Trade;
 use App\Mail\TradeCreated;
-use App\Exceptions\MarketException\ActiveLotExistsException;
-use App\Exceptions\MarketException\IncorrectTimeCloseException;
-use App\Exceptions\MarketException\IncorrectPriceException;
-use App\Exceptions\MarketException\BuyInactiveLotException;
-use App\Exceptions\MarketException\BuyNegativeAmountException;
-use App\Exceptions\MarketException\BuyOwnCurrencyException;
-use App\Exceptions\MarketException\IncorrectLotAmountException;
-
-
-use App\Exceptions\MarketException\LotDoesNotExistException;
+use App\Exceptions\MarketException\{
+    LotDoesNotExistException,
+    ActiveLotExistsException,
+    IncorrectTimeCloseException,
+    IncorrectPriceException,
+    BuyNegativeAmountException,
+    IncorrectLotAmountException,
+    BuyOwnCurrencyException,
+    BuyInactiveLotException
+};
 use App\Repository\Contracts\CurrencyRepository;
 use App\Repository\Contracts\LotRepository;
 use App\Repository\Contracts\MoneyRepository;
@@ -25,6 +25,7 @@ use App\Request\Contracts\AddLotRequest;
 use App\Request\Contracts\BuyLotRequest;
 use App\Request\MoneyRequest;
 use App\Response\Contracts\LotResponse;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 
 class MarketService implements Contracts\MarketService
@@ -83,7 +84,9 @@ class MarketService implements Contracts\MarketService
 
     public function buyLot(BuyLotRequest $lotRequest): Trade
     {
+        $amount = $lotRequest->getAmount();
         $lot = $this->lotRepository->findActiveLot($lotRequest->getLotId());
+        $activeLot = $this->lotRepository->getById($lotRequest->getLotId());
         $buyer = $this->userRepository->getById($lotRequest->getUserId());
         $seller = $this->userRepository->getById($lot->seller_id);
         $buyerWallet = $this->walletRepository->findByUser($buyer->id);
@@ -91,23 +94,56 @@ class MarketService implements Contracts\MarketService
         $buyerMoney = $this->moneyRepository->findByWalletAndCurrency($buyerWallet->id, $lot->currency_id);
         $sellerMoney = $this->moneyRepository->findByWalletAndCurrency($sellerWallet->id, $lot->currency_id);
 
-        if (
-            $lotRequest->getAmount() <= $buyerMoney->amount
-            &&
-            $lotRequest->getAmount() >= 1
-        ) {
-            $this->walletService->takeMoney(new MoneyRequest($buyerWallet->id, $lot->currency_id,
-                $lotRequest->getAmount()));
-            $this->walletService->addMoney(new MoneyRequest($sellerWallet->id, $lot->currnncy_id,
-                $lotRequest->getAmount()));
-            $trade = new Trade([
-                'lot_id' => $lotRequest->getLotId(),
-                'user_id' => $buyer->id,
-                'amount' => $lotRequest->getAmount(),
-            ]);
-            $this->tradeRepository->add($trade);
-            Mail::send(new TradeCreated($trade));
+        if($activeLot === null)
+        {
+            throw new LotDoesNotExistException("Lot with id:$activeLot doesn't exist");
         }
+
+        if($amount < 0)
+        {
+            throw new BuyNegativeAmountException("Amount must be positive");
+        }
+
+        if ($amount < 1) {
+            throw new IncorrectLotAmountException("User can not buy less than one currency unit");
+        }
+
+        if($seller->id == $buyer->id){
+            throw new BuyOwnCurrencyException("User can't buy own currency");
+        }
+
+        if(
+            $activeLot->getDateTimeOpen() <= Carbon::now()->getTimestamp()
+                ||
+            $activeLot->getDateTimeClose() > Carbon::now()->getTimestamp()
+        )
+        {
+            throw new BuyInactiveLotException("Lot $activeLot->id isn't active");
+        }
+
+        if($amount > $sellerMoney->amount)
+        {
+            throw new IncorrectLotAmountException("Not enough money in lot for this operation");
+        }
+
+
+//        if (
+//            $lotRequest->getAmount() <= $buyerMoney->amount
+//            &&
+//            $lotRequest->getAmount() >= 1
+//        ) {
+//            $this->walletService->takeMoney(new MoneyRequest($buyerWallet->id, $lot->currency_id,
+//                $lotRequest->getAmount()));
+//            $this->walletService->addMoney(new MoneyRequest($sellerWallet->id, $lot->currnncy_id,
+//                $lotRequest->getAmount()));
+//            $trade = new Trade([
+//                'lot_id' => $lotRequest->getLotId(),
+//                'user_id' => $buyer->id,
+//                'amount' => $lotRequest->getAmount(),
+//            ]);
+//            $this->tradeRepository->add($trade);
+//            Mail::send(new TradeCreated($trade));
+//        }
 
     }
 
