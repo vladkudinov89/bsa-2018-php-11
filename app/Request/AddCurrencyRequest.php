@@ -3,13 +3,18 @@
 namespace App\Request;
 
 
-use Illuminate\Foundation\Http\FormRequest;
-
-class AddCurrencyRequest extends FormRequest implements Contracts\AddCurrencyRequest
+class AddCurrencyRequest implements Contracts\AddCurrencyRequest
 {
-    public function getName(): string
+
+    private $name;
+
+    public function __construct(string $name)
     {
-        return request()->input('name');
+        $this->name = $name;
     }
 
+    public function getName(): string
+    {
+        return $this->name;
+    }
 }

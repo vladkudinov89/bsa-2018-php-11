@@ -1,21 +1,19 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: vlad
- * Date: 20.07.18
- * Time: 12:42
- */
 
 namespace App\Request;
 
-
-use Illuminate\Foundation\Http\FormRequest;
-
-class CreateWalletRequest extends FormRequest implements Contracts\CreateWalletRequest
+class CreateWalletRequest implements Contracts\CreateWalletRequest
 {
+    private $userId;
+
+    public function __construct(int $userId)
+    {
+        $this->userId = $userId;
+    }
+
     public function getUserId(): int
     {
-        return request()->input('user_id');
+        return $this->userId;
     }
 
 }
