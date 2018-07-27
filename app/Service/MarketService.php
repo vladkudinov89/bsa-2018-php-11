@@ -57,9 +57,8 @@ class MarketService implements Contracts\MarketService
     {
         $lots = $this->lotRepository->findActiveAllLots($lotRequest->getSellerId());
 
-        foreach ($lots as $lot)
-        {
-            if($lot->currency_id == $lotRequest->getCurrencyId()){
+        foreach ($lots as $lot) {
+            if ($lot->currency_id == $lotRequest->getCurrencyId()) {
                 throw new ActiveLotExistsException("User already has active currency lot");
             }
         }
@@ -68,7 +67,7 @@ class MarketService implements Contracts\MarketService
             throw new IncorrectTimeCloseException("Close datetime can't be before open");
         }
 
-        if($lotRequest->getPrice() < 0){
+        if ($lotRequest->getPrice() < 0) {
             throw new IncorrectPriceException("Price must be positive");
         }
 
@@ -85,17 +84,23 @@ class MarketService implements Contracts\MarketService
     public function buyLot(BuyLotRequest $lotRequest): Trade
     {
         $amount = $lotRequest->getAmount();
-        $lot = $this->lotRepository->findActiveLot($lotRequest->getLotId());
-        $activeLot = $this->lotRepository->getById($lotRequest->getLotId());
-        $buyer = $this->userRepository->getById($lotRequest->getUserId());
+        $lotId = $lotRequest->getLotId();
+        $userId = $lotRequest->getUserId();
+
+        $activeLot = $this->lotRepository->findActiveLot($lotId);
+//        return Lot
+        $lot = $this->lotRepository->getById($lotId);
+//        dd($lot);
+        $buyer = $this->userRepository->getById($userId);
+
         $seller = $this->userRepository->getById($lot->seller_id);
         $buyerWallet = $this->walletRepository->findByUser($buyer->id);
         $sellerWallet = $this->walletRepository->findByUser($seller->id);
-        $sellerMoney = $this->moneyRepository->findByWalletAndCurrency($sellerWallet->id, $lot->currency_id);
+        $sellerMoney = $this->moneyRepository->findByWalletAndCurrency($sellerWallet->id, $activeLot->currency_id);
 
-        if($activeLot === null)
+        if($lot === null)
         {
-            throw new LotDoesNotExistException("Lot with id:$activeLot doesn't exist");
+            throw new LotDoesNotExistException("Lot with id:$lot doesn't exist");
         }
 
         if($amount < 0)

@@ -123,7 +123,9 @@ class MarketServiceTest extends TestCase
 
 
         $currency = factory(Currency::class)->make(['id' => 1]);
+        $user = factory(User::class)->make(['id' => 1]);
         $seller = factory(User::class)->make(['id' => 2]);
+
         $lot = factory(Lot::class)->make([
             'id' => 1,
             'currency_id' => $currency->id,
@@ -133,8 +135,6 @@ class MarketServiceTest extends TestCase
             'price' => 4
         ]);
         $buyer = factory(User::class)->make(['id' => 1]);
-
-
 
         $buyerWallet = factory(Wallet::class)->make(['id' => 1,'user' => $buyer->id]);
 
@@ -158,10 +158,12 @@ class MarketServiceTest extends TestCase
             ]);
 
 
+        $buyLotRequest = new BuyLotRequest($user->id, $lot->id, $lot->price);
 
-        $buyLotRequest = new BuyLotRequest($buyer->id, $lot->id, '2');
-//        dd($buyLotRequest);
         $trade = $this->marketService->buyLot($buyLotRequest);
+        $this->assertEquals($user->id, $trade->user_id);
+        $this->assertEquals($lot->id, $trade->lot_id);
+        $this->assertEquals($lot->price, $trade->amount);
         $this->assertInstanceOf(Trade::class, $trade);
         Mail::assertSent(TradeCreated::class);
     }
