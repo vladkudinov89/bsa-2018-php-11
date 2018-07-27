@@ -39,10 +39,14 @@ class MarketService implements Contracts\MarketService
     private $tradeRepository;
     private $walletService;
 
-    public function __construct(LotRepository $lotRepository, CurrencyRepository $currencyRepository,
-                                UserRepository $userRepository, WalletRepository $walletRepository,
-                                MoneyRepository $moneyRepository, TradeRepository $tradeRepository,
-                                \App\Service\Contracts\WalletService $walletService)
+    public function __construct(
+        LotRepository $lotRepository,
+        CurrencyRepository $currencyRepository,
+        UserRepository $userRepository,
+        WalletRepository $walletRepository,
+        MoneyRepository $moneyRepository,
+        TradeRepository $tradeRepository,
+        \App\Service\Contracts\WalletService $walletService)
     {
         $this->lotRepository = $lotRepository;
         $this->currencyRepository = $currencyRepository;
@@ -87,24 +91,22 @@ class MarketService implements Contracts\MarketService
         $lotId = $lotRequest->getLotId();
         $userId = $lotRequest->getUserId();
 
-        $activeLot = $this->lotRepository->findActiveLot($lotId);
-//        dd($this->lotRepository->getById($lotRequest->getUserId()));
         $lot = $this->lotRepository->getById($lotId);
-//        dd($lot);
+
+        $activeSellLot = $this->lotRepository->findActiveLot($lot->seller_id);
+
         $buyer = $this->userRepository->getById($userId);
+        $seller = $this->userRepository->getById($activeSellLot->seller_id);
 
-        $seller = $this->userRepository->getById($lot->seller_id);
         $buyerWallet = $this->walletRepository->findByUser($buyer->id);
-        $sellerWallet = $this->walletRepository->findByUser($seller->id);
-        $sellerMoney = $this->moneyRepository->findByWalletAndCurrency($sellerWallet->id, $activeLot->currency_id);
+        $sellerWallet = $this->walletRepository->findByUser($lot->seller_id);
+        $sellerMoney = $this->moneyRepository->findByWalletAndCurrency($sellerWallet->id, $activeSellLot->currency_id);
 
-        if($lot === null)
-        {
+        if ($lot === null) {
             throw new LotDoesNotExistException("Lot with id:$lot doesn't exist");
         }
 
-        if($amount < 0)
-        {
+        if ($amount < 0) {
             throw new BuyNegativeAmountException("Amount must be positive");
         }
 
@@ -112,21 +114,19 @@ class MarketService implements Contracts\MarketService
             throw new IncorrectLotAmountException("User can not buy less than one currency unit");
         }
 
-        if($seller->id == $buyer->id){
+        if ($lot->seller_id == $buyer->id) {
             throw new BuyOwnCurrencyException("User can't buy own currency");
         }
 
-        if(
-            $activeLot->getDateTimeOpen() <= Carbon::now()->getTimestamp()
-                ||
-            $activeLot->getDateTimeClose() > Carbon::now()->getTimestamp()
-        )
-        {
-            throw new BuyInactiveLotException("Lot $activeLot->id isn't active");
+        if (
+            $activeSellLot->getDateTimeOpen() > Carbon::now()->getTimestamp()
+            ||
+            $activeSellLot->getDateTimeClose() <= Carbon::now()->getTimestamp()
+        ) {
+            throw new BuyInactiveLotException("Lot $activeSellLot->id isn't active");
         }
 
-        if($amount > $sellerMoney->amount)
-        {
+        if ($amount > $sellerMoney->amount) {
             throw new IncorrectLotAmountException("Not enough money in lot for this operation");
         }
 
@@ -139,11 +139,11 @@ class MarketService implements Contracts\MarketService
         );
 
         $this->walletService->addMoney(
-          new MoneyRequest(
-              $sellerWallet->id,
-              $lot->currency_id,
-              $amount
-          )
+            new MoneyRequest(
+                $sellerWallet->id,
+                $lot->currency_id,
+                $amount
+            )
         );
 
         $trade = new Trade;
@@ -152,7 +152,7 @@ class MarketService implements Contracts\MarketService
         $trade->amount = $lotRequest->getAmount();
 
 
-        $mailMessage = new TradeCreated($trade, $seller, $buyer, $this->currencyRepository->getById($activeLot->id));
+        $mailMessage = new TradeCreated($trade, $seller, $buyer, $this->currencyRepository->getById($activeSellLot->id));
         Mail::send($mailMessage);
 
         return $this->tradeRepository->add($trade);

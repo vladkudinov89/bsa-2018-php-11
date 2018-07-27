@@ -10,11 +10,11 @@ class Lot extends Model
 {
     protected $fillable = [
         "id",
-        'currency_id',
-        'seller_id',
-        'date_time_open',
-        'date_time_close',
-        'price'
+        "currency_id",
+        "seller_id",
+        "date_time_open",
+        "date_time_close",
+        "price"
     ];
 
     public function getDateTimeOpen() : int

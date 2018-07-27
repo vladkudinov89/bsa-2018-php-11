@@ -52,24 +52,6 @@ class MarketServiceTest extends TestCase
         $this->moneyRepository = $this->createMock(MoneyRepository::class);
         $this->tradeRepository = $this->createMock(TradeRepository::class);
 
-//        $this->currencyRepository->method('add')->will($this->returnCallback(function ($arg) {
-//            return self::returnModelWithId($arg);
-//        }));
-//
-//        $this->lotRepository->method('add')->will($this->returnCallback(function ($arg) {
-//            return self::returnModelWithId($arg);
-//        }));
-//
-//        $this->walletRepository->method('add')->will($this->returnCallback(function ($arg) {
-//            return self::returnModelWithId($arg);
-//        }));
-//        $this->moneyRepository->method('save')->will($this->returnCallback(function ($arg) {
-//            return self::returnModelWithId($arg);
-//        }));
-//        $this->tradeRepository->method('add')->will($this->returnCallback(function ($arg) {
-//            return self::returnModelWithId($arg);
-//        }));
-
 
         $this->lotRepository->method('add')->will($this->returnArgument(0));
         $this->tradeRepository->method('add')->will($this->returnArgument(0));
@@ -130,21 +112,10 @@ class MarketServiceTest extends TestCase
 
 
         $currency = factory(Currency::class)->make(['id' => 1]);
-
+        $buyer = factory(User::class)->make(['id' => 1]);
         $seller = factory(User::class)->make(['id' => 2]);
 
-        $lot = factory(Lot::class)->make([
-            'id' => 5,
-            'currency_id' => $currency->id,
-            'seller_id' => $seller->id,
-            'date_time_open' => Carbon::now(),
-            'date_time_close' => Carbon::tomorrow(),
-            'price' => 25
-        ]);
-
-        $buyer = factory(User::class)->make(['id' => 1]);
-
-        $buyerWallet = factory(Wallet::class)->make(['id' => 1,'user' => $buyer->id]);
+        $buyerWallet = factory(Wallet::class)->make(['id' => 1, 'user' => $buyer->id]);
 
         $buyerMoney = factory(Money::class)->make([
             'id' => 1,
@@ -163,16 +134,33 @@ class MarketServiceTest extends TestCase
             'wallet_id' => $sellerWallet->id,
             'currency_id' => $currency->id,
             'amount' => 1000
-            ]);
+        ]);
+
+        $lot = factory(Lot::class)->make([
+            'id' => 10,
+            'currency_id' => $currency->id,
+            'seller_id' => $seller->id,
+            'date_time_open' => Carbon::now(),
+            'date_time_close' => Carbon::tomorrow(),
+            'price' => 25
+        ]);
 
         $buyLotRequest = new BuyLotRequest($buyer->id, $lot->id, $lot->price);
-//        dd($buyLotRequest);
+
+        $this->userRepository->method('getById')->willReturn($buyer);
+
+        $this->lotRepository->method('getById')->willReturn($lot);
+        $this->walletRepository->method('findByUser')->willReturn($buyerWallet);
+        $this->lotRepository->method('findActiveLot')->willReturn($lot);
+        $this->currencyRepository->method('getById')->willReturn($currency);
+        $this->moneyRepository->method('findByWalletAndCurrency')->willReturn($sellerMoney);
         $trade = $this->marketService->buyLot($buyLotRequest);
-//        dd($trade);
+
         $this->assertEquals($buyLotRequest->getUserId(), $trade->user_id);
         $this->assertEquals($buyLotRequest->getLotId(), $trade->lot_id);
         $this->assertEquals($buyLotRequest->getAmount(), $trade->amount);
         $this->assertInstanceOf(Trade::class, $trade);
+
         Mail::assertSent(TradeCreated::class);
     }
 
@@ -219,7 +207,7 @@ class MarketServiceTest extends TestCase
     {
         $currency = factory(Currency::class)->make(['id' => 1]);
         $user = factory(User::class)->make(['id' => 2]);
-        $wallet = factory(Wallet::class)->make(['id' => 1,'user' => $user->id]);
+        $wallet = factory(Wallet::class)->make(['id' => 1, 'user' => $user->id]);
 
         $money = factory(Money::class)->make([
             'id' => 1,
@@ -246,11 +234,5 @@ class MarketServiceTest extends TestCase
             $this->assertInstanceOf(LotResponse::class, $lot);
         }
     }
-
-//    private static function returnModelWithId(Model $model)
-//    {
-//        $model->id = random_int(1, 100);
-//        return $model;
-//    }
 
 }
