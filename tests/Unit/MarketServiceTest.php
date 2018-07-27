@@ -5,9 +5,13 @@ namespace Tests\Unit;
 
 use App\Entity\Currency;
 use App\Entity\Lot;
+use App\Entity\Money;
+use App\Entity\Trade;
+use App\Entity\Wallet;
 use App\Exceptions\MarketException\ActiveLotExistsException;
 use App\Exceptions\MarketException\IncorrectPriceException;
 use App\Exceptions\MarketException\IncorrectTimeCloseException;
+use App\Mail\TradeCreated;
 use App\Repository\CurrencyRepository;
 use App\Repository\LotRepository;
 use App\Repository\MoneyRepository;
@@ -16,9 +20,11 @@ use App\Repository\UserRepository;
 use App\Repository\WalletRepository;
 use App\Request\AddCurrencyRequest;
 use App\Request\AddLotRequest;
+use App\Request\BuyLotRequest;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 use App\Service\Contracts\MarketService;
 use App\User;
@@ -109,6 +115,53 @@ class MarketServiceTest extends TestCase
         $this->assertEquals($dateTimeOpen, $lot->date_time_open);
         $this->assertEquals($dateTimeClose, $lot->date_time_close);
         $this->assertEquals($price, $lot->price);
+    }
+
+    public function testBuyLot()
+    {
+        Mail::fake();
+
+        $buyer = factory(User::class)->make(['id' => 1]);
+
+        $seller = factory(User::class)->make(['id' => 2]);
+
+        $currency = factory(Currency::class)->make(['id' => 1]);
+
+        $buyerWallet = factory(Wallet::class)->make(['id' => 1,'user' => $buyer->id]);
+
+        $buyerMoney = factory(Money::class)->make([
+            'id' => 1,
+            'wallet_id' => $buyerWallet->id,
+            'currency_id' => $currency->id,
+            'amount' => 500
+        ]);
+
+        $sellerWallet = factory(Wallet::class)->make([
+            'id' => 2,
+            'user_id' => $seller->id
+        ]);
+
+        $sellerMoney = factory(Money::class)->make([
+            'id' => 2,
+            'wallet_id' => $sellerWallet->id,
+            'currency_id' => $currency->id,
+            'amount' => 500
+            ]);
+
+        $lot = factory(Lot::class)->make([
+            'id' => 1,
+            'currency_id' => $currency->id,
+            'seller_id' => $seller->id,
+            'date_time_open' => Carbon::now(),
+            'date_time_close' => Carbon::tomorrow(),
+            'price' => 4
+        ]);
+
+        $buyLotRequest = new BuyLotRequest($buyer->id, $lot->id, '2');
+//        dd($buyLotRequest);
+        $trade = $this->marketService->buyLot($buyLotRequest);
+        $this->assertInstanceOf(Trade::class, $trade);
+        Mail::assertSent(TradeCreated::class);
     }
 
     private static function returnModelWithId(Model $model)
