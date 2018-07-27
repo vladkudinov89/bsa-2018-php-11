@@ -5,9 +5,13 @@ namespace Tests\Unit;
 
 use App\Entity\Currency;
 use App\Entity\Lot;
+use App\Entity\Money;
+use App\Entity\Trade;
+use App\Entity\Wallet;
 use App\Exceptions\MarketException\ActiveLotExistsException;
 use App\Exceptions\MarketException\IncorrectPriceException;
 use App\Exceptions\MarketException\IncorrectTimeCloseException;
+use App\Mail\TradeCreated;
 use App\Repository\CurrencyRepository;
 use App\Repository\LotRepository;
 use App\Repository\MoneyRepository;
@@ -16,9 +20,11 @@ use App\Repository\UserRepository;
 use App\Repository\WalletRepository;
 use App\Request\AddCurrencyRequest;
 use App\Request\AddLotRequest;
+use App\Request\BuyLotRequest;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 use App\Service\Contracts\MarketService;
 use App\User;
@@ -46,23 +52,11 @@ class MarketServiceTest extends TestCase
         $this->tradeRepository = $this->createMock(TradeRepository::class);
 
 
-        $this->currencyRepository->method('add')->will($this->returnCallback(function ($arg) {
-            return self::returnModelWithId($arg);
-        }));
-
-        $this->lotRepository->method('add')->will($this->returnCallback(function ($arg) {
-            return self::returnModelWithId($arg);
-        }));
-
-        $this->walletRepository->method('add')->will($this->returnCallback(function ($arg) {
-            return self::returnModelWithId($arg);
-        }));
-        $this->moneyRepository->method('save')->will($this->returnCallback(function ($arg) {
-            return self::returnModelWithId($arg);
-        }));
-        $this->tradeRepository->method('add')->will($this->returnCallback(function ($arg) {
-            return self::returnModelWithId($arg);
-        }));
+        $this->lotRepository->method('add')->will($this->returnArgument(0));
+        $this->tradeRepository->method('add')->will($this->returnArgument(0));
+        $this->currencyRepository->method('add')->will($this->returnArgument(0));
+        $this->walletRepository->method('add')->will($this->returnArgument(0));
+        $this->moneyRepository->method('save')->will($this->returnArgument(0));
 
 
         $this->currencyService = new \App\Service\CurrencyService($this->currencyRepository);
@@ -111,9 +105,55 @@ class MarketServiceTest extends TestCase
         $this->assertEquals($price, $lot->price);
     }
 
-    private static function returnModelWithId(Model $model)
+    public function testBuyLot()
     {
-        $model->id = random_int(1, 100);
-        return $model;
+        Mail::fake();
+
+
+        $currency = factory(Currency::class)->make(['id' => 1]);
+        $user = factory(User::class)->make(['id' => 1]);
+        $seller = factory(User::class)->make(['id' => 2]);
+
+        $lot = factory(Lot::class)->make([
+            'id' => 1,
+            'currency_id' => $currency->id,
+            'seller_id' => $seller->id,
+            'date_time_open' => Carbon::now(),
+            'date_time_close' => Carbon::tomorrow(),
+            'price' => 4
+        ]);
+        $buyer = factory(User::class)->make(['id' => 1]);
+
+        $buyerWallet = factory(Wallet::class)->make(['id' => 1,'user' => $buyer->id]);
+
+        $buyerMoney = factory(Money::class)->make([
+            'id' => 1,
+            'wallet_id' => $buyerWallet->id,
+            'currency_id' => $currency->id,
+            'amount' => 500
+        ]);
+
+        $sellerWallet = factory(Wallet::class)->make([
+            'id' => 2,
+            'user_id' => $seller->id
+        ]);
+
+        $sellerMoney = factory(Money::class)->make([
+            'id' => 2,
+            'wallet_id' => $sellerWallet->id,
+            'currency_id' => $currency->id,
+            'amount' => 500
+            ]);
+
+
+        $buyLotRequest = new BuyLotRequest($user->id, $lot->id, $lot->price);
+
+        $trade = $this->marketService->buyLot($buyLotRequest);
+        $this->assertEquals($user->id, $trade->user_id);
+        $this->assertEquals($lot->id, $trade->lot_id);
+        $this->assertEquals($lot->price, $trade->amount);
+        $this->assertInstanceOf(Trade::class, $trade);
+        Mail::assertSent(TradeCreated::class);
     }
+
 }
