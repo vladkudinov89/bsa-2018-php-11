@@ -52,23 +52,11 @@ class MarketServiceTest extends TestCase
         $this->tradeRepository = $this->createMock(TradeRepository::class);
 
 
-        $this->currencyRepository->method('add')->will($this->returnCallback(function ($arg) {
-            return self::returnModelWithId($arg);
-        }));
-
-        $this->lotRepository->method('add')->will($this->returnCallback(function ($arg) {
-            return self::returnModelWithId($arg);
-        }));
-
-        $this->walletRepository->method('add')->will($this->returnCallback(function ($arg) {
-            return self::returnModelWithId($arg);
-        }));
-        $this->moneyRepository->method('save')->will($this->returnCallback(function ($arg) {
-            return self::returnModelWithId($arg);
-        }));
-        $this->tradeRepository->method('add')->will($this->returnCallback(function ($arg) {
-            return self::returnModelWithId($arg);
-        }));
+        $this->lotRepository->method('add')->will($this->returnArgument(0));
+        $this->tradeRepository->method('add')->will($this->returnArgument(0));
+        $this->currencyRepository->method('add')->will($this->returnArgument(0));
+        $this->walletRepository->method('add')->will($this->returnArgument(0));
+        $this->moneyRepository->method('save')->will($this->returnArgument(0));
 
 
         $this->currencyService = new \App\Service\CurrencyService($this->currencyRepository);
@@ -168,9 +156,4 @@ class MarketServiceTest extends TestCase
         Mail::assertSent(TradeCreated::class);
     }
 
-    private static function returnModelWithId(Model $model)
-    {
-        $model->id = random_int(1, 100);
-        return $model;
-    }
 }
