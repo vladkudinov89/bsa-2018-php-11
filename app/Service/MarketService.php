@@ -88,7 +88,7 @@ class MarketService implements Contracts\MarketService
         $userId = $lotRequest->getUserId();
 
         $activeLot = $this->lotRepository->findActiveLot($lotId);
-//        return Lot
+//        dd($this->lotRepository->getById($lotRequest->getUserId()));
         $lot = $this->lotRepository->getById($lotId);
 //        dd($lot);
         $buyer = $this->userRepository->getById($userId);
@@ -162,14 +162,12 @@ class MarketService implements Contracts\MarketService
     public function getLot(int $id): LotResponse
     {
         $lot = $this->lotRepository->getById($id);
-        if (empty($lot)) {
-            throw new LotDoesNotExistException("Lot with id:$lot doesn't exist");
-        }
         $currency = $this->currencyRepository->getById($lot->currency_id);
         $user = $this->userRepository->getById($lot->seller_id);
         $wallet = $this->walletRepository->findByUser($user->id);
         $money = $this->moneyRepository->findByWalletAndCurrency($wallet->id, $currency->id);
-        $response = new \App\Response\LotResponse(
+
+        return $response = new \App\Response\LotResponse(
             $lot->id,
             $user->name,
             $currency->name,
@@ -178,7 +176,6 @@ class MarketService implements Contracts\MarketService
             $lot->getDateTimeClose(),
             $lot->price
         );
-        return $response;
     }
 
     public function getLotList(): array
