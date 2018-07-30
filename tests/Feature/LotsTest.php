@@ -37,4 +37,28 @@ class LotsTest extends TestCase
         $response->assertStatus(201);
     }
 
+    public function testBuyLot()
+    {
+        $currency = factory(Currency::class)->create();
+        $buyer = factory(User::class)->create();
+        $userWallet = factory(Wallet::class)->create();
+//        dd($userWallet);
+        $lot = factory(Lot::class)->create([
+            'currency_id' => $currency->id,
+            'seller_id' => $userWallet->user_id
+        ]);
+        $buyerWallet = factory(Wallet::class)->create();
+        $buyerMoney = factory(Money::class)->create([
+            'currency_id' => $currency->id,
+            'wallet_id' => $buyer->id
+        ]);
+
+        $response = $this->actingAs(User::find($buyer->id))
+            ->json('POST', '/api/v1/trades',[
+                'lot_id' => $lot->id,
+                'amount' => 1000
+            ]);
+        $response->assertStatus(201);
+    }
+
 }
