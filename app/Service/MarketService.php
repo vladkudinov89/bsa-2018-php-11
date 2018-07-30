@@ -79,8 +79,8 @@ class MarketService implements Contracts\MarketService
         $lot->currency_id = $lotRequest->getCurrencyId();
         $lot->seller_id = $lotRequest->getSellerId();
         $lot->price = $lotRequest->getPrice();
-        $lot->date_time_open = $lotRequest->getDateTimeOpen();
-        $lot->date_time_close = $lotRequest->getDateTimeClose();
+        $lot->date_time_open = Carbon::createFromTimestamp($lotRequest->getDateTimeOpen());
+        $lot->date_time_close = Carbon::createFromTimestamp($lotRequest->getDateTimeClose());
 
         return $this->lotRepository->add($lot);
     }
