@@ -92,16 +92,17 @@ class MarketService implements Contracts\MarketService
         $userId = $lotRequest->getUserId();
 
         $lot = $this->lotRepository->getById($lotId);
-
+//        dd($lot->seller_id);
         $activeSellLot = $this->lotRepository->findActiveLot($lot->seller_id);
-
+//        dd($activeSellLot);
         $buyer = $this->userRepository->getById($userId);
-        $seller = $this->userRepository->getById($activeSellLot->seller_id);
+//        dd($buyer);
+        $seller = $this->userRepository->getById($lot->seller_id);
 
         $buyerWallet = $this->walletRepository->findByUser($buyer->id);
         $sellerWallet = $this->walletRepository->findByUser($lot->seller_id);
-        $sellerMoney = $this->moneyRepository->findByWalletAndCurrency($sellerWallet->id, $activeSellLot->currency_id);
-
+        $sellerMoney = $this->moneyRepository->findByWalletAndCurrency($sellerWallet->id, $lot->currency_id);
+//        dd($sellerMoney);
         if ($lot === null) {
             throw new LotDoesNotExistException("Lot with id:$lot doesn't exist");
         }
@@ -113,17 +114,18 @@ class MarketService implements Contracts\MarketService
         if ($amount < 1) {
             throw new IncorrectLotAmountException("User can not buy less than one currency unit");
         }
-
+//        print_r($lot->seller_id);
+//        print_r($buyer->id);
         if ($lot->seller_id == $buyer->id) {
             throw new BuyOwnCurrencyException("User can't buy own currency");
         }
 
         if (
-            $activeSellLot->getDateTimeOpen() > Carbon::now()->getTimestamp()
+            $lot->getDateTimeOpen() > Carbon::now()->getTimestamp()
             ||
-            $activeSellLot->getDateTimeClose() <= Carbon::now()->getTimestamp()
+            $lot->getDateTimeClose() <= Carbon::now()->getTimestamp()
         ) {
-            throw new BuyInactiveLotException("Lot $activeSellLot->id isn't active");
+            throw new BuyInactiveLotException("Lot $lot->id isn't active");
         }
 
         if ($amount > $sellerMoney->amount) {
@@ -132,7 +134,7 @@ class MarketService implements Contracts\MarketService
 
         $this->walletService->takeMoney(
             new MoneyRequest(
-                $buyerWallet->id,
+                $buyer->id,
                 $lot->currency_id,
                 $amount
             )
@@ -152,7 +154,7 @@ class MarketService implements Contracts\MarketService
         $trade->amount = $lotRequest->getAmount();
 
 
-        $mailMessage = new TradeCreated($trade, $seller, $buyer, $this->currencyRepository->getById($activeSellLot->id));
+        $mailMessage = new TradeCreated($trade, $seller, $buyer, $this->currencyRepository->getById($lot->id));
         Mail::send($mailMessage);
 
         return $this->tradeRepository->add($trade);
