@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Exceptions\MarketException\LotDoesNotExistException;
 use App\Request\AddLotRequest;
 use App\Service\Contracts\MarketService;
 use Illuminate\Http\Request;
@@ -92,7 +93,26 @@ class LotsController extends Controller
      */
     public function show($id)
     {
-        //
+        try {
+            $lot = $this->marketService->getLot($id);
+            return response()->json([
+                'id' => $lot->getId(),
+                'user_name' => $lot->getUserName(),
+                'currency_name' => $lot->getCurrencyName(),
+                'amount' => $lot->getAmount(),
+                'date_time_open' => $lot->getDateTimeOpen(),
+                'date_time_close' => $lot->getDateTimeClose(),
+                'price' => $lot->getPrice()
+            ]);
+        } catch (LotDoesNotExistException $e) {
+            dd($e);
+            return response()->json([
+                'error' => [
+                    'message' => 'Lot does not exist',
+                    'code' => 404
+                ]
+            ], 404);
+        }
     }
 
     /**

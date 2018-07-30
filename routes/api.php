@@ -19,6 +19,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::prefix('v1')->group(function (){
     Route::post('/lots' , 'Api\v1\LotsController@store')->name('addLot');
+    Route::get('/lots/{id}' , 'Api\v1\LotsController@show')->name('getLot');
     Route::post('/trades', 'Api\v1\TradeController@store')->name('buyLot');
 });
 
