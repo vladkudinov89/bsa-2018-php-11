@@ -101,8 +101,10 @@ class MarketServiceTest extends TestCase
         $this->assertInstanceOf(Lot::class, $lot);
         $this->assertEquals($currencyId, $lot->currency_id);
         $this->assertEquals($sellerId, $lot->seller_id);
-        $this->assertEquals($dateTimeOpen, $lot->date_time_open);
-        $this->assertEquals($dateTimeClose, $lot->date_time_close);
+//        print_r($dateTimeOpen);
+//        print_r($lot->date_time_open);
+        $this->assertEquals($dateTimeOpen, $lot->date_time_open->getTimestamp());
+        $this->assertEquals($dateTimeClose, $lot->date_time_close->getTimestamp());
         $this->assertEquals($price, $lot->price);
     }
 
