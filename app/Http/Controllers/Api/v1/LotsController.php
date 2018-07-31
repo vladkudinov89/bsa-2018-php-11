@@ -26,7 +26,20 @@ class LotsController extends Controller
      */
     public function index()
     {
-        //
+        $lots = $this->marketService->getLotList();
+        $lotResponse = [];
+        foreach ($lots as $lot) {
+            $lotResponse[] = [
+                'id' => $lot->getId(),
+                'user_name' => $lot->getUserName(),
+                'currency_name' => $lot->getCurrencyName(),
+                'amount' => $lot->getAmount(),
+                'date_time_open' => $lot->getDateTimeOpen(),
+                'date_time_close' => $lot->getDateTimeClose(),
+                'price' => $lot->getPrice()
+            ];
+        }
+        return response()->json($lotResponse);
     }
 
     /**
