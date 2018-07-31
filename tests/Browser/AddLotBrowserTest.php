@@ -14,7 +14,7 @@ class AddLotBrowserTest extends DuskTestCase
 {
     use DatabaseMigrations;
 
-    public function test_form_is_present()
+    public function testFormAddLot()
     {
         $this->browse(
             function (Browser $browser) {

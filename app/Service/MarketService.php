@@ -15,14 +15,18 @@ use App\Exceptions\MarketException\{
     BuyOwnCurrencyException,
     BuyInactiveLotException
 };
-use App\Repository\Contracts\CurrencyRepository;
-use App\Repository\Contracts\LotRepository;
-use App\Repository\Contracts\MoneyRepository;
-use App\Repository\Contracts\TradeRepository;
-use App\Repository\Contracts\UserRepository;
-use App\Repository\Contracts\WalletRepository;
-use App\Request\Contracts\AddLotRequest;
-use App\Request\Contracts\BuyLotRequest;
+use App\Repository\Contracts\{
+    CurrencyRepository,
+    LotRepository,
+    MoneyRepository,
+    TradeRepository,
+    UserRepository,
+    WalletRepository
+};
+use App\Request\Contracts\{
+    AddLotRequest,
+    BuyLotRequest
+};
 use App\Request\MoneyRequest;
 use App\Response\Contracts\LotResponse;
 use Carbon\Carbon;
@@ -92,17 +96,11 @@ class MarketService implements Contracts\MarketService
         $userId = $lotRequest->getUserId();
 
         $lot = $this->lotRepository->getById($lotId);
-//        dd($lot->seller_id);
-        $activeSellLot = $this->lotRepository->findActiveLot($lot->seller_id);
-//        dd($activeSellLot);
         $buyer = $this->userRepository->getById($userId);
-//        dd($buyer);
         $seller = $this->userRepository->getById($lot->seller_id);
-
-        $buyerWallet = $this->walletRepository->findByUser($buyer->id);
         $sellerWallet = $this->walletRepository->findByUser($lot->seller_id);
         $sellerMoney = $this->moneyRepository->findByWalletAndCurrency($sellerWallet->id, $lot->currency_id);
-//        dd($sellerMoney);
+
         if ($lot === null) {
             throw new LotDoesNotExistException("Lot with id:$lot doesn't exist");
         }
@@ -114,8 +112,7 @@ class MarketService implements Contracts\MarketService
         if ($amount < 1) {
             throw new IncorrectLotAmountException("User can not buy less than one currency unit");
         }
-//        print_r($lot->seller_id);
-//        print_r($buyer->id);
+
         if ($lot->seller_id == $buyer->id) {
             throw new BuyOwnCurrencyException("User can't buy own currency");
         }
