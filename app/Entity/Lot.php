@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
@@ -9,11 +10,11 @@ class Lot extends Model
 {
     protected $fillable = [
         "id",
-        'currency_id',
-        'seller_id',
-        'date_time_open',
-        'date_time_close',
-        'price'
+        "currency_id",
+        "seller_id",
+        "date_time_open",
+        "date_time_close",
+        "price"
     ];
 
     public function getDateTimeOpen() : int
@@ -32,5 +33,22 @@ class Lot extends Model
         } else {
             return (new Carbon($this->date_time_close))->getTimestamp();
         }
+    }
+
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class);
+    }
+    public function seller()
+    {
+        return $this->belongsTo(User::class, 'seller_id');
+    }
+    public function trades()
+    {
+        return $this->hasMany(Trade::class);
+    }
+    public function buyers()
+    {
+        return $this->belongsToMany(User::class,'trades');
     }
 }
