@@ -87,4 +87,20 @@ class LotsTest extends TestCase
             ]);
     }
 
+    public function getLotsTest()
+    {
+        $currency = factory(Currency::class , 10)->create();
+        $userWallet = factory(Wallet::class , 10)->create();
+        $userMoney = factory(Money::class , 10)->create([
+            'currency_id' => $currency->id,
+            'wallet_id' => $userWallet->id
+        ]);
+        $lot = factory(Lot::class , 10)->create([
+            'currency_id' => $currency->id,
+            'seller_id' => $userWallet->user_id
+        ]);
+        $response = $this->json('GET' , 'api/v1/lots');
+        $response->assertStatus(200);
+    }
+
 }
