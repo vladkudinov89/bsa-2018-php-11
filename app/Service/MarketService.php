@@ -39,10 +39,14 @@ class MarketService implements Contracts\MarketService
     private $tradeRepository;
     private $walletService;
 
-    public function __construct(LotRepository $lotRepository, CurrencyRepository $currencyRepository,
-                                UserRepository $userRepository, WalletRepository $walletRepository,
-                                MoneyRepository $moneyRepository, TradeRepository $tradeRepository,
-                                \App\Service\Contracts\WalletService $walletService)
+    public function __construct(
+        LotRepository $lotRepository,
+        CurrencyRepository $currencyRepository,
+        UserRepository $userRepository,
+        WalletRepository $walletRepository,
+        MoneyRepository $moneyRepository,
+        TradeRepository $tradeRepository,
+        \App\Service\Contracts\WalletService $walletService)
     {
         $this->lotRepository = $lotRepository;
         $this->currencyRepository = $currencyRepository;
@@ -57,9 +61,8 @@ class MarketService implements Contracts\MarketService
     {
         $lots = $this->lotRepository->findActiveAllLots($lotRequest->getSellerId());
 
-        foreach ($lots as $lot)
-        {
-            if($lot->currency_id == $lotRequest->getCurrencyId()){
+        foreach ($lots as $lot) {
+            if ($lot->currency_id == $lotRequest->getCurrencyId()) {
                 throw new ActiveLotExistsException("User already has active currency lot");
             }
         }
@@ -68,7 +71,7 @@ class MarketService implements Contracts\MarketService
             throw new IncorrectTimeCloseException("Close datetime can't be before open");
         }
 
-        if($lotRequest->getPrice() < 0){
+        if ($lotRequest->getPrice() < 0) {
             throw new IncorrectPriceException("Price must be positive");
         }
 
@@ -76,8 +79,8 @@ class MarketService implements Contracts\MarketService
         $lot->currency_id = $lotRequest->getCurrencyId();
         $lot->seller_id = $lotRequest->getSellerId();
         $lot->price = $lotRequest->getPrice();
-        $lot->date_time_open = $lotRequest->getDateTimeOpen();
-        $lot->date_time_close = $lotRequest->getDateTimeClose();
+        $lot->date_time_open = Carbon::createFromTimestamp($lotRequest->getDateTimeOpen());
+        $lot->date_time_close = Carbon::createFromTimestamp($lotRequest->getDateTimeClose());
 
         return $this->lotRepository->add($lot);
     }
@@ -85,60 +88,64 @@ class MarketService implements Contracts\MarketService
     public function buyLot(BuyLotRequest $lotRequest): Trade
     {
         $amount = $lotRequest->getAmount();
-        $lot = $this->lotRepository->findActiveLot($lotRequest->getLotId());
-        $activeLot = $this->lotRepository->getById($lotRequest->getLotId());
-        $buyer = $this->userRepository->getById($lotRequest->getUserId());
-        $seller = $this->userRepository->getById($lot->seller_id);
-        $buyerWallet = $this->walletRepository->findByUser($buyer->id);
-        $sellerWallet = $this->walletRepository->findByUser($seller->id);
-        $sellerMoney = $this->moneyRepository->findByWalletAndCurrency($sellerWallet->id, $lot->currency_id);
+        $lotId = $lotRequest->getLotId();
+        $userId = $lotRequest->getUserId();
 
-        if($activeLot === null)
-        {
-            throw new LotDoesNotExistException("Lot with id:$activeLot doesn't exist");
+        $lot = $this->lotRepository->getById($lotId);
+//        dd($lot->seller_id);
+        $activeSellLot = $this->lotRepository->findActiveLot($lot->seller_id);
+//        dd($activeSellLot);
+        $buyer = $this->userRepository->getById($userId);
+//        dd($buyer);
+        $seller = $this->userRepository->getById($lot->seller_id);
+
+        $buyerWallet = $this->walletRepository->findByUser($buyer->id);
+        $sellerWallet = $this->walletRepository->findByUser($lot->seller_id);
+        $sellerMoney = $this->moneyRepository->findByWalletAndCurrency($sellerWallet->id, $lot->currency_id);
+//        dd($sellerMoney);
+        if ($lot === null) {
+            throw new LotDoesNotExistException("Lot with id:$lot doesn't exist");
         }
 
-        if($amount < 0)
-        {
+        if ($amount < 0) {
             throw new BuyNegativeAmountException("Amount must be positive");
         }
 
         if ($amount < 1) {
             throw new IncorrectLotAmountException("User can not buy less than one currency unit");
         }
-
-        if($seller->id == $buyer->id){
+//        print_r($lot->seller_id);
+//        print_r($buyer->id);
+        if ($lot->seller_id == $buyer->id) {
             throw new BuyOwnCurrencyException("User can't buy own currency");
         }
 
-        if(
-            $activeLot->getDateTimeOpen() <= Carbon::now()->getTimestamp()
-                ||
-            $activeLot->getDateTimeClose() > Carbon::now()->getTimestamp()
-        )
-        {
-            throw new BuyInactiveLotException("Lot $activeLot->id isn't active");
+        if (
+            $lot->getDateTimeOpen() > Carbon::now()->getTimestamp()
+            ||
+            $lot->getDateTimeClose() <= Carbon::now()->getTimestamp()
+        ) {
+            throw new BuyInactiveLotException("Lot $lot->id isn't active");
         }
 
-        if($amount > $sellerMoney->amount)
-        {
+        if ($amount > $sellerMoney->amount) {
             throw new IncorrectLotAmountException("Not enough money in lot for this operation");
         }
 
         $this->walletService->takeMoney(
             new MoneyRequest(
-                $buyerWallet->id,
+                $buyer->id,
                 $lot->currency_id,
                 $amount
             )
         );
 
         $this->walletService->addMoney(
-          new MoneyRequest(
-              $sellerWallet->id,
-              $lot->currency_id,
-              $amount
-          )
+            new MoneyRequest(
+                $sellerWallet->id,
+                $lot->currency_id,
+                $amount
+            )
         );
 
         $trade = new Trade;
@@ -147,7 +154,7 @@ class MarketService implements Contracts\MarketService
         $trade->amount = $lotRequest->getAmount();
 
 
-        $mailMessage = new TradeCreated($trade, $seller, $buyer, $this->currencyRepository->getById($activeLot->id));
+        $mailMessage = new TradeCreated($trade, $seller, $buyer, $this->currencyRepository->getById($lot->id));
         Mail::send($mailMessage);
 
         return $this->tradeRepository->add($trade);
@@ -157,14 +164,12 @@ class MarketService implements Contracts\MarketService
     public function getLot(int $id): LotResponse
     {
         $lot = $this->lotRepository->getById($id);
-        if (empty($lot)) {
-            throw new LotDoesNotExistException("Lot with id:$lot doesn't exist");
-        }
         $currency = $this->currencyRepository->getById($lot->currency_id);
         $user = $this->userRepository->getById($lot->seller_id);
         $wallet = $this->walletRepository->findByUser($user->id);
         $money = $this->moneyRepository->findByWalletAndCurrency($wallet->id, $currency->id);
-        $response = new \App\Response\LotResponse(
+
+        return $response = new \App\Response\LotResponse(
             $lot->id,
             $user->name,
             $currency->name,
@@ -173,7 +178,6 @@ class MarketService implements Contracts\MarketService
             $lot->getDateTimeClose(),
             $lot->price
         );
-        return $response;
     }
 
     public function getLotList(): array
