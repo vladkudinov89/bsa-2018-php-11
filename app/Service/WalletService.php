@@ -3,12 +3,19 @@
 namespace App\Service;
 
 
-use App\Entity\Money;
-use App\Entity\Wallet;
-use App\Repository\Contracts\MoneyRepository;
-use App\Repository\Contracts\WalletRepository;
-use App\Request\Contracts\CreateWalletRequest;
-use App\Request\Contracts\MoneyRequest;
+use App\Entity\{
+    Money,
+    Wallet
+};
+use App\Repository\Contracts\{
+    MoneyRepository,
+    WalletRepository
+};
+use App\Request\Contracts\{
+    CreateWalletRequest,
+    MoneyRequest
+};
+
 
 class WalletService implements Contracts\WalletService
 {
